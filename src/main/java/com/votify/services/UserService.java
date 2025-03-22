@@ -6,7 +6,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.votify.dto.UserDTO;
 import com.votify.exceptions.ConflictException;
+import com.votify.exceptions.UserNotFoundException;
 import com.votify.exceptions.ValidationErrorException;
+import com.votify.enums.UserRole;
 import com.votify.models.UserModel;
 import com.votify.repositories.UserRepository;
 import org.springframework.stereotype.Service;
@@ -27,13 +29,50 @@ public class UserService {
         userModel.setSurname(userDto.surname());
         userModel.setEmail(userDto.email());
         userModel.setPassword(userDto.password());
+        
+        if (userDto.role() != null && !userDto.role().isEmpty()) {
+            try {
+                userModel.setRole(UserRole.valueOf(userDto.role().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new ValidationErrorException(List.of("Invalid role"));
+            }
+        }
+        
         userRepository.save(userModel);
     }
   
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .filter(UserModel::isActive)
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public UserDTO getUserById(Long id) {
+        UserModel user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+        
+        if (!user.isActive()) {
+            throw new UserNotFoundException();
+        }
+        
+        return convertToDTO(user);
+    }
+    
+    private UserDTO convertToDTO(UserModel userModel) {
+        return new UserDTO(
+                userModel.getName(),
+                userModel.getSurname(),
+                null,
+                userModel.getEmail(),
+                userModel.getRole() != null ? userModel.getRole().toString() : null
+        );
+    }
+
     private void validateFieldsWithCheckEmail(UserDTO userDto, BindingResult bindingResult) {
         Optional<UserModel> checkEmailExists = userRepository.findByEmail(userDto.email());
 
-        if (checkEmailExists.isPresent()) throw new ConflictException("Email já cadastrado");
+        if (checkEmailExists.isPresent()) throw new ConflictException("Email already exists");
 
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getFieldErrors().stream()
@@ -42,4 +81,57 @@ public class UserService {
             throw new ValidationErrorException(errors);
         }
     }
+
+    public void updateUser(Long id, UserDTO userDto, BindingResult bindingResult) {
+        UserModel user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+        
+        if (!user.isActive()) {
+            throw new UserNotFoundException();
+        }
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.toList());
+            throw new ValidationErrorException(errors);
+        }
+        
+        if (userDto.email() != null && !userDto.email().isEmpty() && !userDto.email().equals(user.getEmail())) {
+            Optional<UserModel> existingUserWithEmail = userRepository.findByEmail(userDto.email());
+            if (existingUserWithEmail.isPresent()) {
+                throw new ConflictException("Email already exists");
+            }
+            user.setEmail(userDto.email());
+        }
+        
+        if (userDto.name() != null && !userDto.name().isEmpty()) {
+            user.setName(userDto.name());
+        }
+        
+        if (userDto.surname() != null && !userDto.surname().isEmpty()) {
+            user.setSurname(userDto.surname());
+        }
+        
+        if (userDto.password() != null && !userDto.password().isEmpty()) {
+            user.setPassword(userDto.password());
+        }
+        
+        if (userDto.role() != null && !userDto.role().isEmpty()) {
+            try {
+                user.setRole(UserRole.valueOf(userDto.role().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new ValidationErrorException(List.of("Invalid role"));
+            }
+        }
+        
+        userRepository.save(user);
+    }
+
+    public void deleteUser(Long id) {
+        UserModel user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+        user.setActive(false);
+        userRepository.save(user);
+    }
+
 }

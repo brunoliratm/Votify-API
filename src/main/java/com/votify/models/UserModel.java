@@ -32,4 +32,8 @@ public class UserModel {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    private boolean active=true;
+
+
 }
