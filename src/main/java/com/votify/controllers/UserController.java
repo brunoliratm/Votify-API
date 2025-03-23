@@ -1,11 +1,9 @@
 package com.votify.controllers;
 
-import org.springframework.web.bind.annotation.RestController;
 import com.votify.dto.UserDTO;
 import com.votify.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,16 +17,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping({"/api/v1/users", "/api/v1/users/"})
+@RequestMapping({"/api/v1/users"})
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @Operation(summary = "Create a new user")
-    @ApiResponses(value = {
+    @Operation(summary = "Create a new user", description = "Create a new user", responses = {
         @ApiResponse(responseCode = "201", description = "User created"),
         @ApiResponse(responseCode = "400", description = "Invalid input"),
         @ApiResponse(responseCode = "409", description = "User already exists")
@@ -39,8 +37,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Update user")
-    @ApiResponses(value = {
+    @Operation(summary = "Update user", description = "Update user by id", responses = {
         @ApiResponse(responseCode = "200", description = "User updated"),
         @ApiResponse(responseCode = "400", description = "Invalid input"),
         @ApiResponse(responseCode = "404", description = "User not found")
@@ -51,8 +48,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Operation(summary = "Delete user")
-    @ApiResponses(value = {
+    @Operation(summary = "Delete user", description = "Delete user by id", responses = {
         @ApiResponse(responseCode = "200", description = "User deleted"),
         @ApiResponse(responseCode = "404", description = "User not found")
     })
@@ -62,8 +58,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Operation(summary = "Get all users")
-    @ApiResponses(value = {
+    @Operation(summary = "Get all users", description = "Get all users", responses = {
         @ApiResponse(responseCode = "200", description = "List of users")
     })
     @GetMapping
@@ -72,8 +67,7 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    @Operation(summary = "Get user by id")
-    @ApiResponses(value = {
+    @Operation(summary = "Get user by id", description = "Get user by id", responses = {
         @ApiResponse(responseCode = "200", description = "User found"),
         @ApiResponse(responseCode = "404", description = "User not found")
     })
