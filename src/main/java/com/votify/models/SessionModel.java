@@ -1,5 +1,6 @@
 package com.votify.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,12 @@ public class SessionModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 40)
+    private String title;
+
+    @Column(nullable = false)
+    private String description;
+
     @Column(nullable = false, name = "start_date")
     private LocalDateTime startDate;
 
@@ -31,5 +38,6 @@ public class SessionModel {
     private UserModel organizer;
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<AgendaModel> agendas;
 }
