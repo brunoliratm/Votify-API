@@ -34,6 +34,4 @@ public class UserModel {
     private UserRole role;
 
     private boolean active=true;
-
-
 }

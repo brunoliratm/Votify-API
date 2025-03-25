@@ -16,4 +16,5 @@ public record UserDTO(
     String password,
     @Email(message = "{email.Email}") 
     String email, 
-    String role) {}
+    String role
+) {}
