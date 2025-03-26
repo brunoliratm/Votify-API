@@ -15,14 +15,6 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("Votify API")
                         .version("v1")
-                        .description("API para gerenciamento de sessões de votação, pautas e associados no cooperativismo."))
-                .components(new io.swagger.v3.oas.models.Components()
-                        .addSecuritySchemes("BearerAuth",
-                                new SecurityScheme()
-                                        .name("Authorization")
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")
-                                        .description("Insira o token JWT no formato `Bearer <token>`")));
+                        .description("API para gerenciamento de sessões de votação, pautas e associados no cooperativismo."));
     }
 }

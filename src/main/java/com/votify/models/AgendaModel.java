@@ -25,7 +25,7 @@ public class AgendaModel {
 
     private String description;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "session_id", nullable = false)
     @JsonBackReference
     private SessionModel session;

@@ -1,5 +1,7 @@
 package com.votify.handlers;
 
+import com.votify.exceptions.SessionNotFoundException;
+import com.votify.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -46,11 +48,23 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<CustomErrorResponse> handlerUserNotFound(UserNotFoundException ex) {
+        return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(SessionNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<CustomErrorResponse> handlerUserNotFound(SessionNotFoundException ex) {
+        return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<CustomErrorResponse> handlerGenericException(Exception ex) {
         logger.error("Unhandled exception", ex);
-        return new ResponseEntity<>(new CustomErrorResponse("Internal server error"),
+        return new ResponseEntity<>(new CustomErrorResponse("An unknown error occurred"),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

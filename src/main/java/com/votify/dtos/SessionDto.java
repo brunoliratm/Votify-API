@@ -1,11 +1,14 @@
 package com.votify.dtos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record SessionDto(
         @NotBlank(message = "{sessions.title.notBlank}")
         String title,
@@ -13,12 +16,15 @@ public record SessionDto(
         @NotBlank(message = "{sessions.description.notBlank}")
         String description,
 
+        @NotNull(message = "{sessions.startDate.notNull}")
         @JsonProperty("start_date")
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime startDate,
 
         @JsonProperty("end_date")
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        LocalDateTime endDate
+        LocalDateTime endDate,
+
+        @NotNull(message = "{sessions.organizerId.notNull}")
+        @JsonProperty("organizer_id")
+        Long organizerId
 ) {
 }
