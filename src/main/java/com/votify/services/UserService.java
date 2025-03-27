@@ -4,22 +4,31 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.votify.dto.UserDTO;
 import com.votify.exceptions.ConflictException;
 import com.votify.exceptions.UserNotFoundException;
 import com.votify.exceptions.ValidationErrorException;
+import com.votify.dtos.ApiResponseDto;
+import com.votify.dtos.UserDTO;
 import com.votify.enums.UserRole;
 import com.votify.models.UserModel;
 import com.votify.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import com.votify.dtos.InfoDto;
+import com.votify.helpers.UtilHelper;
 
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private UtilHelper utilHelper;
 
     public void createUser(UserDTO userDto, BindingResult bindingResult) {
         validateFieldsWithCheckEmail(userDto, bindingResult);
@@ -41,9 +50,19 @@ public class UserService {
         userRepository.save(userModel);
     }
 
-    public List<UserDTO> getAllUsers() {
-        return userRepository.findAll().stream().filter(UserModel::isActive).map(this::convertToDTO)
+    public ApiResponseDto<UserDTO> getAllUsers(int page) {
+        int pageIndex = (page > 0) ? (page - 1) : 0;
+        
+        Pageable pageable = PageRequest.of(pageIndex, 10);
+        Page<UserModel> userPage = userRepository.findByActiveTrue(pageable);
+        
+        List<UserDTO> userDtos = userPage.getContent().stream()
+                .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        
+        InfoDto info = utilHelper.buildPageableInfoDto(userPage, "api/v1/users");
+        
+        return new ApiResponseDto<>(info, userDtos);
     }
 
     public UserDTO getUserById(Long id) {
