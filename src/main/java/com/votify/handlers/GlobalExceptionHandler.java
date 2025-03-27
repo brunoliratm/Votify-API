@@ -2,6 +2,7 @@ package com.votify.handlers;
 
 import com.votify.enums.SortSession;
 import com.votify.exceptions.SessionNotFoundException;
+import com.votify.exceptions.StartDateBeforeEndDateException;
 import com.votify.exceptions.UserNotFoundException;
 import com.votify.helpers.UtilHelper;
 import org.springframework.http.HttpStatus;
@@ -74,8 +75,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(SessionNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<CustomErrorResponse> handlerUserNotFound(SessionNotFoundException ex) {
+    public ResponseEntity<CustomErrorResponse> handleSessionNotFound(SessionNotFoundException ex) {
         return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(StartDateBeforeEndDateException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<CustomErrorResponse> handleStartDateBeforeEndDateException(StartDateBeforeEndDateException ex) {
+        return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
