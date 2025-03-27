@@ -1,6 +1,6 @@
 package com.votify.controllers;
 
-import com.votify.dto.UserDTO;
+import com.votify.dtos.UserDTO;
 import com.votify.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.votify.dtos.ApiResponseDto;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -43,9 +45,7 @@ public class UserController {
                     @ApiResponse(responseCode = "404", description = "User not found")})
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateUser(@PathVariable Long id,
-            @RequestBody @Valid UserDTO userDto, 
-            BindingResult bindingResult
-        ) {
+            @RequestBody @Valid UserDTO userDto, BindingResult bindingResult) {
         userService.updateUser(id, userDto, bindingResult);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -59,12 +59,15 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Operation(summary = "Get all users", description = "Get all users",
+    @Operation(summary = "Get all users", description = "Get all users with pagination",
             responses = {@ApiResponse(responseCode = "200", description = "List of users")})
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<UserDTO> users = userService.getAllUsers();
-        return new ResponseEntity<>(users, HttpStatus.OK);
+    public ResponseEntity<?> getAllUsers(
+            @RequestParam(required = false, defaultValue = "1") int page) {
+
+        ApiResponseDto<UserDTO> response = userService.getAllUsers(page);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
     }
 
     @Operation(summary = "Get user by id", description = "Get user by id",
