@@ -4,10 +4,7 @@ import com.votify.dtos.ApiResponseDto;
 import com.votify.dtos.InfoDto;
 import com.votify.dtos.SessionDto;
 import com.votify.enums.SortSession;
-import com.votify.exceptions.SessionNotFoundException;
-import com.votify.exceptions.StartDateBeforeEndDateException;
-import com.votify.exceptions.UserNotFoundException;
-import com.votify.exceptions.ValidationErrorException;
+import com.votify.exceptions.*;
 import com.votify.helpers.UtilHelper;
 import com.votify.models.SessionModel;
 import com.votify.models.UserModel;
@@ -69,6 +66,10 @@ public class SessionService {
         Page<SessionDto> responsePage = sessionRepository.findAllActive(pageable)
             .map(this::convertSessionToDto);
 
+        if (pageIndex > responsePage.getTotalPages()) {
+            throw new PageNotFoundException(responsePage.getTotalPages());
+        }
+
         InfoDto infoDto = utilHelper.buildPageableInfoDto(responsePage, "sessions");
 
         return new ApiResponseDto<>(infoDto, responsePage.getContent());
@@ -123,8 +124,9 @@ public class SessionService {
 
     private void validateErrorFields(SessionDto sessionDto, BindingResult bindingResult) {
         if (sessionDto != null && sessionDto.startDate() != null && sessionDto.endDate() != null) {
-            if (!sessionDto.startDate().isBefore(sessionDto.endDate()))
+            if (!sessionDto.startDate().isBefore(sessionDto.endDate())) {
                 throw new StartDateBeforeEndDateException();
+            }
         }
 
         if (bindingResult.hasErrors()) {

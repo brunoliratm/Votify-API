@@ -1,9 +1,7 @@
 package com.votify.handlers;
 
 import com.votify.enums.SortSession;
-import com.votify.exceptions.SessionNotFoundException;
-import com.votify.exceptions.StartDateBeforeEndDateException;
-import com.votify.exceptions.UserNotFoundException;
+import com.votify.exceptions.*;
 import com.votify.helpers.UtilHelper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +9,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import com.votify.exceptions.ValidationErrorException;
 import com.votify.models.CustomErrorResponse;
 
 import java.util.*;
@@ -83,6 +80,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<CustomErrorResponse> handleStartDateBeforeEndDateException(StartDateBeforeEndDateException ex) {
         return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PageNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<CustomErrorResponse> handlePageNotFound(PageNotFoundException ex) {
+        return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)

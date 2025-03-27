@@ -27,4 +27,8 @@ public class UserModel {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    public boolean isAdmin() {
+        return role == UserRole.ADMIN;
+    }
 }

@@ -30,7 +30,7 @@ public class SessionModel extends BaseEntity{
     @Column(nullable = false, name = "start_date")
     private LocalDateTime startDate;
 
-    @Column(nullable = false, name = "end_date")
+    @Column(nullable = true, name = "end_date")
     private LocalDateTime endDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
