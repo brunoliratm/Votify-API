@@ -10,21 +10,21 @@ import java.time.LocalDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record SessionDto(
-        @NotBlank(message = "{sessions.title.notBlank}")
-        String title,
+    @NotBlank(message = "{sessions.title.notBlank}")
+    String title,
 
-        @NotBlank(message = "{sessions.description.notBlank}")
-        String description,
+    @NotBlank(message = "{sessions.description.notBlank}")
+    String description,
 
-        @NotNull(message = "{sessions.startDate.notNull}")
-        @JsonProperty("start_date")
-        LocalDateTime startDate,
+    @NotNull(message = "{sessions.startDate.notNull}")
+    @JsonProperty("start_date")
+    LocalDateTime startDate,
 
-        @JsonProperty("end_date")
-        LocalDateTime endDate,
+    @JsonProperty("end_date")
+    LocalDateTime endDate,
 
-        @NotNull(message = "{sessions.organizerId.notNull}")
-        @JsonProperty("organizer_id")
-        Long organizerId
+    @NotNull(message = "{sessions.organizerId.notNull}")
+    @JsonProperty("organizer_id")
+    Long organizerId
 ) {
 }

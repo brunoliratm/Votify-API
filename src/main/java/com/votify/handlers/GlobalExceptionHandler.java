@@ -37,12 +37,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
+        MethodArgumentNotValidException ex) {
         Map<String, Object> response = new HashMap<>();
         List<String> errors = new ArrayList<>();
 
         ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.add(error.getField() + ": " + error.getDefaultMessage())
+            errors.add(error.getField() + ": " + error.getDefaultMessage())
         );
 
         response.put("message", "Validation error");
@@ -83,6 +83,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CustomErrorResponse> handlerGenericException(Exception ex) {
         logger.error("Unhandled exception", ex);
         return new ResponseEntity<>(new CustomErrorResponse("An unknown error occurred"),
-                HttpStatus.INTERNAL_SERVER_ERROR);
+            HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

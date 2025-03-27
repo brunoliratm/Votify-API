@@ -12,10 +12,10 @@ public class UtilHelper {
 
     public InfoDto buildPageableInfoDto(Page<?> responsePage, String endpoint) {
         return new InfoDto(
-                responsePage.getTotalElements(),
-                responsePage.getTotalPages(),
-                responsePage.hasNext() ? baseUrl + "/" + endpoint + "?page=" + (responsePage.getNumber() + 1) : null,
-                responsePage.hasPrevious() ? baseUrl + "/" + endpoint + "?page=" + (responsePage.getNumber() - 1) : null
+            responsePage.getTotalElements(),
+            responsePage.getTotalPages(),
+            responsePage.hasNext() ? baseUrl + "/" + endpoint + "?page=" + (responsePage.getNumber() + 1) : null,
+            responsePage.hasPrevious() ? baseUrl + "/" + endpoint + "?page=" + (responsePage.getNumber() - 1) : null
         );
     }
 

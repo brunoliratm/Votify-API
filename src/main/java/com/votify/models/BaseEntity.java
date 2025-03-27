@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 @MappedSuperclass
 public abstract class BaseEntity {
-
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 

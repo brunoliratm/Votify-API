@@ -33,9 +33,9 @@ public class SessionService {
     private final UtilHelper utilHelper;
 
     public SessionService(
-            SessionRepository sessionRepository,
-            UserRepository userRepository,
-            UtilHelper utilHelper
+        SessionRepository sessionRepository,
+        UserRepository userRepository,
+        UtilHelper utilHelper
     ) {
         this.sessionRepository = sessionRepository;
         this.userRepository = userRepository;
@@ -47,11 +47,11 @@ public class SessionService {
         validateErrorFields(sessionDto, bindingResult);
 
         LocalDateTime startDate = (sessionDto.startDate() != null)
-                ? sessionDto.startDate()
-                : LocalDateTime.now();
+            ? sessionDto.startDate()
+            : LocalDateTime.now();
 
         UserModel organizer = userRepository.findById(sessionDto.organizerId())
-                .orElseThrow(UserNotFoundException::new);
+            .orElseThrow(UserNotFoundException::new);
 
         SessionModel session = new SessionModel();
         session.setTitle(sessionDto.title());
@@ -67,7 +67,7 @@ public class SessionService {
 
         Pageable pageable = PageRequest.of(pageIndex, 10, Sort.by(sortDirection, String.valueOf(sort)));
         Page<SessionDto> responsePage = sessionRepository.findAllActive(pageable)
-                .map(this::convertSessionToDto);
+            .map(this::convertSessionToDto);
 
         InfoDto infoDto = utilHelper.buildPageableInfoDto(responsePage, "sessions");
 
@@ -76,7 +76,7 @@ public class SessionService {
 
     public SessionModel getSessionById(Long id) {
         return sessionRepository.findByIdActive(id)
-                .orElseThrow(SessionNotFoundException::new);
+            .orElseThrow(SessionNotFoundException::new);
     }
 
     public SessionDto findById(Long id) {
@@ -129,19 +129,19 @@ public class SessionService {
 
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getFieldErrors().stream()
-                    .map(FieldError::getDefaultMessage)
-                    .collect(Collectors.toList());
+                .map(FieldError::getDefaultMessage)
+                .collect(Collectors.toList());
             throw new ValidationErrorException(errors);
         }
     }
 
     private SessionDto convertSessionToDto(SessionModel sessionModel) {
         return new SessionDto(
-                sessionModel.getTitle(),
-                sessionModel.getDescription(),
-                sessionModel.getStartDate(),
-                sessionModel.getEndDate(),
-                sessionModel.getOrganizer().getId()
+            sessionModel.getTitle(),
+            sessionModel.getDescription(),
+            sessionModel.getStartDate(),
+            sessionModel.getEndDate(),
+            sessionModel.getOrganizer().getId()
         );
     }
 }
