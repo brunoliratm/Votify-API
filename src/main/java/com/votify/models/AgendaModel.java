@@ -1,5 +1,6 @@
 package com.votify.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,8 +25,9 @@ public class AgendaModel {
 
     private String description;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "session_id", nullable = false)
+    @JsonBackReference
     private SessionModel session;
 
     @OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL)

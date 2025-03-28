@@ -1,5 +1,8 @@
 package com.votify.handlers;
 
+import com.votify.enums.SortSession;
+import com.votify.exceptions.*;
+import com.votify.helpers.UtilHelper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -15,18 +18,18 @@ import com.votify.exceptions.UserNotFoundException;
 import com.votify.exceptions.ValidationErrorException;
 import com.votify.models.CustomErrorResponse;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    
+
+    private final UtilHelper utilHelper = new UtilHelper();
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-    
+
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<CustomErrorResponse> handlerUserNotFound(UserNotFoundException ex) {
@@ -47,15 +50,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CustomErrorResponse> handlerConflict(ConflictException ex) {
         return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.CONFLICT);
     }
-    
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String, Object>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
         Map<String, Object> response = new HashMap<>();
         List<String> errors = new ArrayList<>();
-        
+
         String message = "Invalid request body format";
-        
+
         if (ex.getCause() instanceof UnrecognizedPropertyException) {
             UnrecognizedPropertyException unrecognizedEx = (UnrecognizedPropertyException) ex.getCause();
             String propertyName = unrecognizedEx.getPropertyName();
@@ -68,14 +71,14 @@ public class GlobalExceptionHandler {
         } else {
             errors.add("Invalid JSON format");
         }
-        
+
         logger.debug("JSON parsing error", ex);
-        
+
         response.put("message", message);
         response.put("errors", errors);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-    
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(
@@ -92,11 +95,45 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<CustomErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        String message = ex.getMessage();
+        if (ex.getName().equals("direction")) {
+            message = "Invalid direction value. Allowed values are: ASC, DESC.";
+        }
+
+        if (ex.getName().equals("sort")) {
+            String enumValues = utilHelper.getEnumValues(Objects.requireNonNull(ex.getRequiredType()));
+            message = "Invalid sort value. Allowed values are: " + enumValues;
+        }
+
+        CustomErrorResponse response = new CustomErrorResponse(message);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(SessionNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<CustomErrorResponse> handleSessionNotFound(SessionNotFoundException ex) {
+        return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(StartDateBeforeEndDateException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<CustomErrorResponse> handleStartDateBeforeEndDateException(StartDateBeforeEndDateException ex) {
+        return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PageNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<CustomErrorResponse> handlePageNotFound(PageNotFoundException ex) {
+        return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<CustomErrorResponse> handlerGenericException(Exception ex) {
         logger.error("Unhandled exception", ex);
-        return new ResponseEntity<>(new CustomErrorResponse("Internal server error"), 
-                HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new CustomErrorResponse("An unknown error occurred"),
+            HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
