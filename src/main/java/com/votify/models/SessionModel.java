@@ -16,7 +16,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SessionModel {
+public class SessionModel extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,7 +30,7 @@ public class SessionModel {
     @Column(nullable = false, name = "start_date")
     private LocalDateTime startDate;
 
-    @Column(nullable = false, name = "end_date")
+    @Column(nullable = true, name = "end_date")
     private LocalDateTime endDate;
 
     @ManyToOne(fetch = FetchType.LAZY)

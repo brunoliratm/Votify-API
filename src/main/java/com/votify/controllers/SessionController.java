@@ -89,13 +89,19 @@ public class SessionController {
         return new ResponseEntity<>(session, HttpStatus.OK);
     }
 
-    @Operation(summary = "Update a session", description = "Update a session", responses = {
+    @Operation(summary = "Update part of a session", description = "Update part of a sessionon", responses = {
             @ApiResponse(responseCode = "200", description = "Session updated"),
             @ApiResponse(responseCode = "400", description = "Invalid data",
                     content = @Content(
                             mediaType = "application/json",
                             examples = @ExampleObject(value = "{\"message\": \"Invalid data, missing title or description\"}")
                     )
+            ),
+            @ApiResponse(responseCode = "404", description = "Session not found",
+                    content = @Content(mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "SessionNotFound", value = "{\"message\": \"Session not found\"}")
+                            })
             ),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(
@@ -104,7 +110,7 @@ public class SessionController {
                     )
             )
     })
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<SessionDto> update(
             @PathVariable Long id,
             @RequestBody @Valid SessionDto sessionDto,
@@ -112,5 +118,26 @@ public class SessionController {
     ) {
         SessionDto updatedSession = this.sessionService.update(id, sessionDto, bindingResult);
         return ResponseEntity.status(200).body(updatedSession);
+    }
+
+    @Operation(summary = "Delete a session", description = "Delete a sessionon", responses = {
+            @ApiResponse(responseCode = "204", description = "Session deleted"),
+            @ApiResponse(responseCode = "404", description = "Session not found",
+                    content = @Content(mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "SessionNotFound", value = "{\"message\": \"Session not found\"}")
+                            })
+            ),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")
+                    )
+            )
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        this.sessionService.delete(id);
+        return ResponseEntity.status(204).build();
     }
 }

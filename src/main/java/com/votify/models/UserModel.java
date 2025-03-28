@@ -1,30 +1,34 @@
-    package com.votify.models;
+package com.votify.models;
 
-    import com.votify.enums.UserRole;
-    import jakarta.persistence.*;
-    import lombok.AllArgsConstructor;
-    import lombok.Getter;
-    import lombok.NoArgsConstructor;
-    import lombok.Setter;
+import com.votify.enums.UserRole;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-    @Entity
-    @Table(name = "users")
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public class UserModel {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+@Entity
+@Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserModel {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-        private String name;
+    private String name;
 
-        @Column(unique = true, nullable = false)
-        private String email;
+    @Column(unique = true, nullable = false)
+    private String email;
 
-        private String password;
+    private String password;
 
-        @Enumerated(EnumType.STRING)
-        private UserRole role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
+    public boolean isAdmin() {
+        return role == UserRole.ADMIN;
     }
+}
