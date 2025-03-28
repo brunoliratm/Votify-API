@@ -45,16 +45,37 @@ public class UserService {
             } catch (IllegalArgumentException e) {
                 throw new ValidationErrorException(List.of("Invalid role"));
             }
+        } else {
+            userModel.setRole(UserRole.ASSOCIATE);
         }
-
         userRepository.save(userModel);
     }
 
-    public ApiResponseDto<UserDTO> getAllUsers(int page) {
+    public ApiResponseDto<UserDTO> getAllUsers(int page, String name, String role) {
         int pageIndex = (page > 0) ? (page - 1) : 0;
         
         Pageable pageable = PageRequest.of(pageIndex, 10);
-        Page<UserModel> userPage = userRepository.findByActiveTrue(pageable);
+        Page<UserModel> userPage;
+        
+        if (name != null && !name.isEmpty() && role != null && !role.isEmpty()) {
+            try {
+                UserRole userRole = UserRole.valueOf(role.toUpperCase());
+                userPage = userRepository.findByActiveTrueAndNameContainingIgnoreCaseAndRole(name, userRole, pageable);
+            } catch (IllegalArgumentException e) {
+                userPage = userRepository.findByActiveTrueAndNameContainingIgnoreCase(name, pageable);
+            }
+        } else if (name != null && !name.isEmpty()) {
+            userPage = userRepository.findByActiveTrueAndNameContainingIgnoreCase(name, pageable);
+        } else if (role != null && !role.isEmpty()) {
+            try {
+                UserRole userRole = UserRole.valueOf(role.toUpperCase());
+                userPage = userRepository.findByActiveTrueAndRole(userRole, pageable);
+            } catch (IllegalArgumentException e) {
+                userPage = userRepository.findByActiveTrue(pageable);
+            }
+        } else {
+            userPage = userRepository.findByActiveTrue(pageable);
+        }
         
         List<UserDTO> userDtos = userPage.getContent().stream()
                 .map(this::convertToDTO)
@@ -64,7 +85,7 @@ public class UserService {
         
         return new ApiResponseDto<>(info, userDtos);
     }
-
+    
     public UserDTO getUserById(Long id) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 

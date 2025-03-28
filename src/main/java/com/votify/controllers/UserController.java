@@ -5,7 +5,6 @@ import com.votify.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,11 +62,11 @@ public class UserController {
             responses = {@ApiResponse(responseCode = "200", description = "List of users")})
     @GetMapping
     public ResponseEntity<?> getAllUsers(
-            @RequestParam(required = false, defaultValue = "1") int page) {
-
-        ApiResponseDto<UserDTO> response = userService.getAllUsers(page);
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String role) {
+        ApiResponseDto<UserDTO> response = userService.getAllUsers(page, name, role);
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
 
     @Operation(summary = "Get user by id", description = "Get user by id",
