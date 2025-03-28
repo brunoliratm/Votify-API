@@ -81,7 +81,7 @@ public class UserService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
         
-        InfoDto info = utilHelper.buildPageableInfoDto(userPage, "api/v1/users");
+        InfoDto info = utilHelper.buildPageableInfoDto(userPage, "/users");
         
         return new ApiResponseDto<>(info, userDtos);
     }

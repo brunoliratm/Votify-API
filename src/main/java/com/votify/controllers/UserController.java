@@ -46,7 +46,7 @@ public class UserController {
     public ResponseEntity<Void> updateUser(@PathVariable Long id,
             @RequestBody @Valid UserDTO userDto, BindingResult bindingResult) {
         userService.updateUser(id, userDto, bindingResult);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Operation(summary = "Delete user", description = "Delete user by id",
@@ -55,7 +55,7 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Operation(summary = "Get all users", description = "Get all users with pagination",
