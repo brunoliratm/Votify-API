@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
@@ -68,8 +69,10 @@ public class GlobalExceptionHandler {
         } else {
             errors.add("Invalid JSON format");
         }
-        
-        logger.debug("JSON parsing error", ex);
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("JSON parsing error", ex);
+        }
         
         response.put("message", message);
         response.put("errors", errors);
@@ -95,7 +98,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<CustomErrorResponse> handlerGenericException(Exception ex) {
-        logger.error("Unhandled exception", ex);
+        if (!(ex instanceof NoResourceFoundException)) {
+            logger.error("Unhandled exception: {}", ex.getMessage());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Exception details:", ex);
+            }
+        }
         return new ResponseEntity<>(new CustomErrorResponse("Internal server error"), 
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
