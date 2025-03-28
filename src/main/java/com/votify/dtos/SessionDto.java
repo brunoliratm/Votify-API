@@ -15,6 +15,7 @@ public record SessionDto(
     @NotBlank(message = "{sessions.title.notBlank}")
     String title,
 
+    @NotNull(message = "{sessions.description.notNull}")
     @NotBlank(message = "{sessions.description.notBlank}")
     String description,
 

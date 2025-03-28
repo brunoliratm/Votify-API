@@ -110,7 +110,7 @@ public class SessionController {
                     )
             )
     })
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<SessionDto> update(
             @PathVariable Long id,
             @RequestBody @Valid SessionDto sessionDto,
