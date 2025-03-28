@@ -14,6 +14,7 @@ public record UserDTO(
     @NotBlank(message = "{password.NotBlank}")
     @Size(min = 6, max = 50, message = "{password.Size}")
     String password,
+    @NotBlank(message = "{email.NotBlank}")
     @Email(message = "{email.Email}") 
     String email, 
     String role
