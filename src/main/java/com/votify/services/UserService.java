@@ -1,7 +1,6 @@
 package com.votify.services;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.votify.dto.UserDTO;
@@ -11,6 +10,8 @@ import com.votify.exceptions.ValidationErrorException;
 import com.votify.enums.UserRole;
 import com.votify.models.UserModel;
 import com.votify.repositories.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -28,7 +29,7 @@ public class UserService {
         userModel.setName(userDto.name());
         userModel.setSurname(userDto.surname());
         userModel.setEmail(userDto.email());
-        userModel.setPassword(userDto.password());
+        userModel.setPassword(new BCryptPasswordEncoder().encode(userDto.password()));
 
         if (userDto.role() != null && !userDto.role().isEmpty()) {
             try {
@@ -62,9 +63,9 @@ public class UserService {
     }
 
     private void validateFieldsWithCheckEmail(UserDTO userDto, BindingResult bindingResult) {
-        Optional<UserModel> checkEmailExists = userRepository.findByEmail(userDto.email());
+        UserDetails checkEmailExists = userRepository.findByEmail(userDto.email());
 
-        if (checkEmailExists.isPresent())
+        if (checkEmailExists != null )
             throw new ConflictException("Email already exists");
 
         if (bindingResult.hasErrors()) {
@@ -89,8 +90,8 @@ public class UserService {
 
         if (userDto.email() != null && !userDto.email().isEmpty()
                 && !userDto.email().equals(user.getEmail())) {
-            Optional<UserModel> existingUserWithEmail = userRepository.findByEmail(userDto.email());
-            if (existingUserWithEmail.isPresent()) {
+            UserDetails existingUserWithEmail = userRepository.findByEmail(userDto.email());
+            if (existingUserWithEmail.getUsername().equals(user.getEmail())) {
                 throw new ConflictException("Email already exists");
             }
         }
@@ -140,6 +141,10 @@ public class UserService {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         user.setActive(false);
         userRepository.save(user);
+    }
+
+    public UserDetails loadUserByLogin(String login) throws UserNotFoundException {
+        return userRepository.findByEmail(login);
     }
 
 }
