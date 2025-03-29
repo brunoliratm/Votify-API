@@ -1,6 +1,5 @@
-package com.votify.dtos;
+package com.votify.dtos.requests;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.FutureOrPresent;
@@ -10,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record SessionDto(
+public record SessionRequestDto(
     @NotNull(message = "{sessions.title.notNull}")
     @NotBlank(message = "{sessions.title.notBlank}")
     String title,
