@@ -1,5 +1,6 @@
 package com.votify.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,21 +16,28 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SessionModel {
+public class SessionModel extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 40)
+    private String title;
+
+    @Column(nullable = false)
+    private String description;
+
     @Column(nullable = false, name = "start_date")
     private LocalDateTime startDate;
 
-    @Column(nullable = false, name = "end_date")
+    @Column(nullable = true, name = "end_date")
     private LocalDateTime endDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizer_id", nullable = false)
     private UserModel organizer;
 
-    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "session", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @JsonManagedReference
     private List<AgendaModel> agendas;
 }
