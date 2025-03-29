@@ -1,6 +1,7 @@
 package com.votify.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.votify.dto.UserDTO;
@@ -63,9 +64,9 @@ public class UserService {
     }
 
     private void validateFieldsWithCheckEmail(UserDTO userDto, BindingResult bindingResult) {
-        UserDetails checkEmailExists = userRepository.findByEmail(userDto.email());
+        Optional<UserModel> checkEmailExists = userRepository.findByEmail(userDto.email());
 
-        if (checkEmailExists != null )
+        if (checkEmailExists.isPresent() )
             throw new ConflictException("Email already exists");
 
         if (bindingResult.hasErrors()) {
@@ -90,8 +91,8 @@ public class UserService {
 
         if (userDto.email() != null && !userDto.email().isEmpty()
                 && !userDto.email().equals(user.getEmail())) {
-            UserDetails existingUserWithEmail = userRepository.findByEmail(userDto.email());
-            if (existingUserWithEmail.getUsername().equals(user.getEmail())) {
+            Optional<UserModel> existingUserWithEmail = userRepository.findByEmail(userDto.email());
+            if (existingUserWithEmail.isPresent()) {
                 throw new ConflictException("Email already exists");
             }
         }
@@ -143,7 +144,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserDetails loadUserByLogin(String login) throws UserNotFoundException {
+    public Optional<UserModel> loadUserByLogin(String login) throws UserNotFoundException {
         return userRepository.findByEmail(login);
     }
 
