@@ -69,6 +69,9 @@ java -jar target/votify-0.0.1-SNAPSHOT.jar
 - `GET /api/v1/votes/agenda/{agendaId}` - Get votes for a specific agenda
 - `GET /api/v1/votes/stats/{agendaId}` - Get voting statistics
 
+### Authentication
+- `POST /api/v1/auth/login` - Login user
+
 ## 🛠️ Technologies
 - Java 21
 - Spring Boot 3.4

@@ -11,6 +11,7 @@ import com.votify.exceptions.ValidationErrorException;
 import com.votify.enums.UserRole;
 import com.votify.models.UserModel;
 import com.votify.repositories.UserRepository;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -146,6 +147,11 @@ public class UserService {
 
     public Optional<UserModel> loadUserByLogin(String login) throws UserNotFoundException {
         return userRepository.findByEmail(login);
+    }
+    public Optional<UserModel> findOrganizer(Long id) {
+        Optional<UserModel> userModelOptional = userRepository.findById(id);
+        if (!userModelOptional.get().getAuthorities().contains(new SimpleGrantedAuthority("ORGANIZER"))) throw new UserNotFoundException();
+        return userModelOptional;
     }
 
 }

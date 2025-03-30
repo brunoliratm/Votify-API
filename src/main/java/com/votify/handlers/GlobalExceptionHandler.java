@@ -1,6 +1,5 @@
 package com.votify.handlers;
 
-import com.votify.enums.SortSession;
 import com.votify.exceptions.*;
 import com.votify.helpers.UtilHelper;
 import org.springframework.http.HttpStatus;
@@ -35,7 +34,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CustomErrorResponse> handlerUserNotFound(UserNotFoundException ex) {
         return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
-
     @ExceptionHandler(ValidationErrorException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String, Object>> handlerValidationError(ValidationErrorException ex) {
@@ -128,7 +126,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CustomErrorResponse> handlePageNotFound(PageNotFoundException ex) {
         return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
-
+    @ExceptionHandler(UserInactiveException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<CustomErrorResponse> userInactiveException(UserInactiveException ex) {
+        return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.FORBIDDEN);
+    }
+    @ExceptionHandler(InvalidCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<CustomErrorResponse> invalidCredentialsException(InvalidCredentialsException ex){
+        return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.UNAUTHORIZED);
+    }
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<CustomErrorResponse> handlerGenericException(Exception ex) {

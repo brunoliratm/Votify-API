@@ -1,8 +1,9 @@
 package com.votify.services;
 
-import com.votify.dtos.ApiResponseDto;
-import com.votify.dtos.InfoDto;
-import com.votify.dtos.SessionDto;
+import com.votify.dto.ApiResponseDto;
+import com.votify.dto.InfoDto;
+import com.votify.dto.SessionDto;
+import com.votify.dto.SessionRequestPutDTO;
 import com.votify.enums.SortSession;
 import com.votify.exceptions.*;
 import com.votify.helpers.UtilHelper;
@@ -21,21 +22,22 @@ import org.springframework.validation.FieldError;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class SessionService {
     private final SessionRepository sessionRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final UtilHelper utilHelper;
 
     public SessionService(
         SessionRepository sessionRepository,
-        UserRepository userRepository,
+        UserService userService,
         UtilHelper utilHelper
     ) {
         this.sessionRepository = sessionRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
         this.utilHelper = utilHelper;
     }
 
@@ -47,15 +49,16 @@ public class SessionService {
             ? sessionDto.startDate()
             : LocalDateTime.now();
 
-        UserModel organizer = userRepository.findById(sessionDto.organizerId())
-            .orElseThrow(UserNotFoundException::new);
+        Optional<UserModel> organizer = userService.findOrganizer(sessionDto.organizerId());
+
+        if (organizer.isEmpty()) throw new UserNotFoundException();
 
         SessionModel session = new SessionModel();
         session.setTitle(sessionDto.title());
         session.setDescription(sessionDto.description());
         session.setStartDate(startDate);
         session.setEndDate(sessionDto.endDate());
-        session.setOrganizer(organizer);
+        session.setOrganizer(organizer.get());
         sessionRepository.save(session);
     }
 
@@ -86,25 +89,25 @@ public class SessionService {
     }
 
     @Transactional
-    public SessionDto update(Long id, SessionDto sessionDto, BindingResult bindingResult) {
-        validateErrorFields(sessionDto, bindingResult);
+    public SessionDto update(Long id, SessionRequestPutDTO sessionRequestPutDTO, BindingResult bindingResult) {
+        validateErrorFieldsSessionRequestPut(sessionRequestPutDTO, bindingResult);
         SessionModel session = getSessionById(id);
         boolean isUpdated = false;
 
-        if (sessionDto.title() != null && !sessionDto.title().equals(session.getTitle())) {
-            session.setTitle(sessionDto.title());
+        if (sessionRequestPutDTO.title() != null && !sessionRequestPutDTO.title().equals(session.getTitle())) {
+            session.setTitle(sessionRequestPutDTO.title());
             isUpdated = true;
         }
-        if (sessionDto.description() != null && !sessionDto.description().equals(session.getDescription())) {
-            session.setDescription(sessionDto.description());
+        if (sessionRequestPutDTO.description() != null && !sessionRequestPutDTO.description().equals(session.getDescription())) {
+            session.setDescription(sessionRequestPutDTO.description());
             isUpdated = true;
         }
-        if (sessionDto.startDate() != null && !sessionDto.startDate().equals(session.getStartDate())) {
-            session.setStartDate(sessionDto.startDate());
+        if (sessionRequestPutDTO.startDate() != null && !sessionRequestPutDTO.startDate().equals(session.getStartDate())) {
+            session.setStartDate(sessionRequestPutDTO.startDate());
             isUpdated = true;
         }
-        if (sessionDto.endDate() != null && !sessionDto.endDate().equals(session.getEndDate())) {
-            session.setEndDate(sessionDto.endDate());
+        if (sessionRequestPutDTO.endDate() != null && !sessionRequestPutDTO.endDate().equals(session.getEndDate())) {
+            session.setEndDate(sessionRequestPutDTO.endDate());
             isUpdated = true;
         }
 
@@ -145,5 +148,19 @@ public class SessionService {
             sessionModel.getEndDate(),
             sessionModel.getOrganizer().getId()
         );
+    }
+    private void validateErrorFieldsSessionRequestPut(SessionRequestPutDTO sessionRequestPutDTO, BindingResult bindingResult) {
+        if (sessionRequestPutDTO != null && sessionRequestPutDTO.startDate() != null && sessionRequestPutDTO.endDate() != null) {
+            if (!sessionRequestPutDTO.startDate().isBefore(sessionRequestPutDTO.endDate())) {
+                throw new StartDateBeforeEndDateException();
+            }
+        }
+
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.toList());
+            throw new ValidationErrorException(errors);
+        }
     }
 }

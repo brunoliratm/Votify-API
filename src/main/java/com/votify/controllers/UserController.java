@@ -3,6 +3,8 @@ package com.votify.controllers;
 import com.votify.dto.UserDTO;
 import com.votify.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -29,6 +31,14 @@ public class UserController {
     @Operation(summary = "Create a new user", description = "Create a new user",
             responses = {@ApiResponse(responseCode = "201", description = "User created"),
                     @ApiResponse(responseCode = "400", description = "Invalid input"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized access",
+                            content = @Content(mediaType = "application/json",
+                                    examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
+                            )),
+                    @ApiResponse(responseCode = "403", description = "Access denied",
+                            content = @Content(mediaType = "application/json",
+                                    examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
+                            )),
                     @ApiResponse(responseCode = "409", description = "User already exists")})
     @PostMapping
     public ResponseEntity<Void> createUser(@RequestBody @Valid UserDTO userDto,
@@ -40,6 +50,14 @@ public class UserController {
     @Operation(summary = "Update user", description = "Update user by id",
             responses = {@ApiResponse(responseCode = "200", description = "User updated"),
                     @ApiResponse(responseCode = "400", description = "Invalid input"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized access",
+                            content = @Content(mediaType = "application/json",
+                                    examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
+                            )),
+                    @ApiResponse(responseCode = "403", description = "Access denied",
+                            content = @Content(mediaType = "application/json",
+                                    examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
+                            )),
                     @ApiResponse(responseCode = "404", description = "User not found")})
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateUser(@PathVariable Long id,
@@ -52,6 +70,14 @@ public class UserController {
 
     @Operation(summary = "Delete user", description = "Delete user by id",
             responses = {@ApiResponse(responseCode = "200", description = "User deleted"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized access",
+                            content = @Content(mediaType = "application/json",
+                                    examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
+                            )),
+                    @ApiResponse(responseCode = "403", description = "Access denied",
+                            content = @Content(mediaType = "application/json",
+                                    examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
+                            )),
                     @ApiResponse(responseCode = "404", description = "User not found")})
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
@@ -60,7 +86,15 @@ public class UserController {
     }
 
     @Operation(summary = "Get all users", description = "Get all users",
-            responses = {@ApiResponse(responseCode = "200", description = "List of users")})
+            responses = {@ApiResponse(responseCode = "200", description = "List of users"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized access",
+                            content = @Content(mediaType = "application/json",
+                                    examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
+                            )),
+                    @ApiResponse(responseCode = "403", description = "Access denied",
+                            content = @Content(mediaType = "application/json",
+                                    examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
+                            )),})
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> users = userService.getAllUsers();
@@ -69,6 +103,14 @@ public class UserController {
 
     @Operation(summary = "Get user by id", description = "Get user by id",
             responses = {@ApiResponse(responseCode = "200", description = "User found"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized access",
+                            content = @Content(mediaType = "application/json",
+                                    examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
+                            )),
+                    @ApiResponse(responseCode = "403", description = "Access denied",
+                            content = @Content(mediaType = "application/json",
+                                    examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
+                            )),
                     @ApiResponse(responseCode = "404", description = "User not found")})
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {

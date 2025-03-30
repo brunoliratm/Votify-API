@@ -1,6 +1,6 @@
 package com.votify.helpers;
 
-import com.votify.dtos.InfoDto;
+import com.votify.dto.InfoDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
