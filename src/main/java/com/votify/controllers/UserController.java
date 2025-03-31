@@ -4,6 +4,7 @@ import com.votify.dtos.UserDTO;
 import com.votify.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import com.votify.dtos.ApiResponseDto;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@Tag(name = "Users", description = "Endpoints for user management")
 public class UserController {
 
     @Autowired
@@ -61,7 +63,7 @@ public class UserController {
     @Operation(summary = "Get all users", description = "Get all users with pagination",
             responses = {@ApiResponse(responseCode = "200", description = "List of users")})
     @GetMapping
-    public ResponseEntity<?> getAllUsers(
+    public ResponseEntity<ApiResponseDto<UserDTO>> getAllUsers(
             @RequestParam(required = false, defaultValue = "1") int page,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String role) {
