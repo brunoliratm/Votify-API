@@ -3,6 +3,7 @@ package com.votify.services;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.votify.dto.UserDTO;
 import com.votify.exceptions.ConflictException;
@@ -154,4 +155,8 @@ public class UserService {
         return userModelOptional;
     }
 
+    @Transactional
+    public void updateUser(UserModel user) {
+        userRepository.save(user);
+    }
 }

@@ -1,6 +1,8 @@
 package com.votify.controllers;
 
 import com.votify.dto.AuthenticationDto;
+import com.votify.dto.ResetPasswordDTO;
+import com.votify.dto.UserEmailDto;
 import com.votify.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -57,11 +59,48 @@ public class AuthController {
                     )
             )
     })
+
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody @Valid AuthenticationDto authenticationDto) {
         String token = authService.login(authenticationDto);
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + token)
                 .build();
+    }
+    @Operation(summary = "Forgot password", description = "Send an email with a code to reset the password", responses = {
+
+            @ApiResponse(responseCode = "200", description = "Email sent successfully"),
+            @ApiResponse(responseCode = "400", description = "Incorrect data submission", content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "Invalid email", value = "{\"errors\": [\"E-mail is mandatory\", \"Invalid email format\"]}"),
+            }))
+    })
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@RequestBody @Valid UserEmailDto userEmailDto) {
+        authService.forgotPassword(userEmailDto.email());
+        return ResponseEntity.ok().build();
+
+    }
+
+    @Operation(summary = "Reset password", description = "Reset the user's password", responses = {
+            @ApiResponse(responseCode = "200", description = "Password reset successfully"),
+            @ApiResponse(responseCode = "400", description = "Incorrect data submission", content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "Invalid code", value = "{\"errors\": [\"code: The code is mandatory\", \"code: The code must be 6 characters long\"]}"),
+                    @ExampleObject(name = "Invalid password", value = "{\"errors\": [\"Password is mandatory\", \"Password must be at least 6 characters long\"]}"),
+                    @ExampleObject(name = "Passwords don't match", value = "{\"errors\": [\"Passwords do not match.\"]}"),
+                    @ExampleObject(name = "Code expired", value = "{\"message\": \"Expired code\"}"),
+
+            })),
+            @ApiResponse(responseCode = "403", description = "User inactive", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Inactive user\"}"))),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"User not found\"}"))),
+    })
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordDTO resetPasswordDto) {
+        authService.resetPassword(
+                resetPasswordDto.email(),
+                resetPasswordDto.code(),
+                resetPasswordDto.password(),
+                resetPasswordDto.confirmPassword()
+        );
+        return ResponseEntity.ok().build();
     }
 }

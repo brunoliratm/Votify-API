@@ -9,7 +9,7 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -40,6 +40,12 @@ public class UserModel implements UserDetails {
     private UserRole role;
 
     private boolean active=true;
+
+    @Column(name = "reset_password_code", length = 6)
+    private String resetPasswordCode;
+
+    @Column(name = "reset_password_expiration")
+    private LocalDateTime resetPasswordExpirationCode;
 
     public boolean isAdmin() {
         return role == UserRole.ADMIN;
