@@ -3,6 +3,8 @@ package com.votify.controllers;
 import com.votify.dtos.UserDTO;
 import com.votify.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -30,9 +32,15 @@ public class UserController {
     private UserService userService;
 
     @Operation(summary = "Create a new user", description = "Create a new user",
-            responses = {@ApiResponse(responseCode = "201", description = "User created"),
-                    @ApiResponse(responseCode = "400", description = "Invalid input"),
-                    @ApiResponse(responseCode = "409", description = "User already exists")})
+            responses = {
+                @ApiResponse(responseCode = "201", description = "User created"),
+                @ApiResponse(responseCode = "400", description = "Invalid input", 
+                    content = @Content(mediaType = "application/json", 
+                        examples = @ExampleObject(value = "{\"message\": \"Validation error\", \"errors\": [\"name: Name cannot be blank\", \"email: Invalid email format\"]}"))),
+                @ApiResponse(responseCode = "409", description = "User already exists", 
+                    content = @Content(mediaType = "application/json", 
+                        examples = @ExampleObject(value = "{\"message\": \"Email already exists\"}")))
+            })
     @PostMapping
     public ResponseEntity<Void> createUser(@RequestBody @Valid UserDTO userDto,
             BindingResult bindingResult) {
@@ -41,9 +49,18 @@ public class UserController {
     }
 
     @Operation(summary = "Update user", description = "Update user by id",
-            responses = {@ApiResponse(responseCode = "200", description = "User updated"),
-                    @ApiResponse(responseCode = "400", description = "Invalid input"),
-                    @ApiResponse(responseCode = "404", description = "User not found")})
+            responses = {
+                @ApiResponse(responseCode = "204", description = "User updated"),
+                @ApiResponse(responseCode = "400", description = "Invalid input", 
+                    content = @Content(mediaType = "application/json", 
+                        examples = @ExampleObject(value = "{\"message\": \"Validation error\", \"errors\": [\"name: Name cannot be blank\", \"email: Invalid email format\"]}"))),
+                @ApiResponse(responseCode = "404", description = "User not found", 
+                    content = @Content(mediaType = "application/json", 
+                        examples = @ExampleObject(value = "{\"message\": \"User not found\"}"))),
+                @ApiResponse(responseCode = "409", description = "Email conflict", 
+                    content = @Content(mediaType = "application/json", 
+                        examples = @ExampleObject(value = "{\"message\": \"Email already exists\"}")))
+            })
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateUser(@PathVariable Long id,
             @RequestBody @Valid UserDTO userDto, BindingResult bindingResult) {
@@ -52,8 +69,12 @@ public class UserController {
     }
 
     @Operation(summary = "Delete user", description = "Delete user by id",
-            responses = {@ApiResponse(responseCode = "200", description = "User deleted"),
-                    @ApiResponse(responseCode = "404", description = "User not found")})
+            responses = {
+                @ApiResponse(responseCode = "204", description = "User deleted"),
+                @ApiResponse(responseCode = "404", description = "User not found", 
+                    content = @Content(mediaType = "application/json", 
+                        examples = @ExampleObject(value = "{\"message\": \"User not found\"}")))
+            })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
@@ -61,7 +82,12 @@ public class UserController {
     }
 
     @Operation(summary = "Get all users", description = "Get all users with pagination",
-            responses = {@ApiResponse(responseCode = "200", description = "List of users")})
+            responses = {
+                @ApiResponse(responseCode = "200", description = "List of users"),
+                @ApiResponse(responseCode = "400", description = "Bad request", 
+                    content = @Content(mediaType = "application/json", 
+                        examples = @ExampleObject(value = "{\"message\": \"Invalid parameters\"}")))
+            })
     @GetMapping
     public ResponseEntity<ApiResponseDto<UserDTO>> getAllUsers(
             @RequestParam(required = false, defaultValue = "1") int page,
@@ -72,8 +98,12 @@ public class UserController {
     }
 
     @Operation(summary = "Get user by id", description = "Get user by id",
-            responses = {@ApiResponse(responseCode = "200", description = "User found"),
-                    @ApiResponse(responseCode = "404", description = "User not found")})
+            responses = {
+                @ApiResponse(responseCode = "200", description = "User found"),
+                @ApiResponse(responseCode = "404", description = "User not found", 
+                    content = @Content(mediaType = "application/json", 
+                        examples = @ExampleObject(value = "{\"message\": \"User not found\"}")))
+            })
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         UserDTO user = userService.getUserById(id);
