@@ -1,6 +1,7 @@
 package com.votify.controllers;
 
 import com.votify.dtos.requests.AgendaRequestDto;
+import com.votify.dtos.requests.AgendaRequestPutDto;
 import com.votify.dtos.responses.AgendaResponseDto;
 import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.enums.SortAgenda;
@@ -90,7 +91,7 @@ public class AgendaController {
     }
 
     @Operation(summary = "Update an agenda", description = "Update an agenda", responses = {
-        @ApiResponse(responseCode = "200", description = "Agenda updated"),
+        @ApiResponse(responseCode = "204", description = "Agenda updated"),
         @ApiResponse(responseCode = "400", description = "Invalid data",
             content = @Content(
                 mediaType = "application/json",
@@ -113,10 +114,10 @@ public class AgendaController {
     @PutMapping("/{id}")
     public ResponseEntity<Void> update(
             @PathVariable Long id,
-            @RequestBody @Valid AgendaRequestDto agendaRequestDto,
+            @RequestBody @Valid AgendaRequestPutDto agendaRequestPutDto,
             BindingResult bindingResult
     ) {
-        this.agendaService.update(id, agendaRequestDto, bindingResult);
+        this.agendaService.update(id, agendaRequestPutDto, bindingResult);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

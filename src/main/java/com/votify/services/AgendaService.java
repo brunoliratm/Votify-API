@@ -2,6 +2,7 @@ package com.votify.services;
 
 import com.votify.dtos.*;
 import com.votify.dtos.requests.AgendaRequestDto;
+import com.votify.dtos.requests.AgendaRequestPutDto;
 import com.votify.dtos.responses.AgendaResponseDto;
 import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.enums.SortAgenda;
@@ -61,7 +62,7 @@ public class AgendaService {
         Page<AgendaResponseDto> responsePage = this.agendaRepository.findAllActive(pageable)
                 .map(this::convertAgendaToDto);
 
-        if (pageIndex >= responsePage.getTotalPages()) {
+        if (pageIndex > responsePage.getTotalPages()) {
             throw new PageNotFoundException(responsePage.getTotalPages());
         }
 
@@ -81,18 +82,18 @@ public class AgendaService {
     }
 
     @Transactional
-    public void update(Long id, AgendaRequestDto agendaRequestDto, BindingResult bindingResult) {
+    public void update(Long id, AgendaRequestPutDto agendaRequestPutDto, BindingResult bindingResult) {
         validateErrorFields(bindingResult);
         AgendaModel agenda = this.getAgendaById(id);
         boolean isUpdated = false;
 
-        if (agendaRequestDto.title() != null && !agendaRequestDto.title().equals(agenda.getTitle())) {
-            agenda.setTitle(agendaRequestDto.title());
+        if (agendaRequestPutDto.title() != null && !agendaRequestPutDto.title().equals(agenda.getTitle())) {
+            agenda.setTitle(agendaRequestPutDto.title());
             isUpdated = true;
         }
 
-        if (agendaRequestDto.description() != null && !agendaRequestDto.description().equals(agenda.getDescription())) {
-            agenda.setDescription(agendaRequestDto.description());
+        if (agendaRequestPutDto.description() != null && !agendaRequestPutDto.description().equals(agenda.getDescription())) {
+            agenda.setDescription(agendaRequestPutDto.description());
             isUpdated = true;
         }
 

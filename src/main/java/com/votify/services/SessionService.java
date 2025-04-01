@@ -74,7 +74,7 @@ public class SessionService {
         Page<SessionResponseDto> responsePage = sessionRepository.findAllActive(pageable)
             .map(this::convertSessionToDto);
 
-        if (pageIndex >= responsePage.getTotalPages()) {
+        if (pageIndex > responsePage.getTotalPages()) {
             throw new PageNotFoundException(responsePage.getTotalPages());
         }
 
