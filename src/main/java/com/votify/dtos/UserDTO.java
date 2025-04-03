@@ -2,6 +2,7 @@ package com.votify.dtos;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record UserDTO(
@@ -17,5 +18,7 @@ public record UserDTO(
     @NotBlank(message = "{email.NotBlank}")
     @Email(message = "{email.Email}") 
     String email, 
+    @NotBlank(message = "{role.NotBlank}")
+    @Pattern(regexp = "ADMIN|ORGANIZER|ASSOCIATE", message = "{role.Invalid}")
     String role
 ) {}

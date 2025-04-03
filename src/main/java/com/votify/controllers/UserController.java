@@ -34,12 +34,31 @@ public class UserController {
     @Operation(summary = "Create a new user", description = "Create a new user",
             responses = {
                 @ApiResponse(responseCode = "201", description = "User created"),
-                @ApiResponse(responseCode = "400", description = "Invalid input", 
-                    content = @Content(mediaType = "application/json", 
-                        examples = @ExampleObject(value = "{\"message\": \"Validation error\", \"errors\": [\"name: Name cannot be blank\", \"email: Invalid email format\"]}"))),
-                @ApiResponse(responseCode = "409", description = "User already exists", 
-                    content = @Content(mediaType = "application/json", 
-                        examples = @ExampleObject(value = "{\"message\": \"Email already exists\"}")))
+                @ApiResponse(responseCode = "400", description = "Validation error",
+                    content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(value = """
+                            {
+                                "message": "Validation error",
+                                "errors": [
+                                    "name: Name cannot be blank",
+                                    "name: Name must be between 1 and 100 characters",
+                                    "surname: Surname cannot be blank",
+                                    "surname: Surname must be between 1 and 100 characters",
+                                    "password: Password cannot be blank",
+                                    "password: Password must be between 6 and 50 characters",
+                                    "email: Email cannot be blank",
+                                    "email: Invalid email format",
+                                    "role: Role cannot be blank",
+                                    "role: Invalid role. Allowed values are ADMIN, ORGANIZER, ASSOCIATE"
+                                ]
+                            }
+                        """))),
+                @ApiResponse(responseCode = "409", description = "Email conflict",
+                    content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(value = "{\"message\": \"Email already exists\"}"))),
+                @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")))
             })
     @PostMapping
     public ResponseEntity<Void> createUser(@RequestBody @Valid UserDTO userDto,
@@ -51,15 +70,34 @@ public class UserController {
     @Operation(summary = "Update user", description = "Update user by id",
             responses = {
                 @ApiResponse(responseCode = "204", description = "User updated"),
-                @ApiResponse(responseCode = "400", description = "Invalid input", 
-                    content = @Content(mediaType = "application/json", 
-                        examples = @ExampleObject(value = "{\"message\": \"Validation error\", \"errors\": [\"name: Name cannot be blank\", \"email: Invalid email format\"]}"))),
-                @ApiResponse(responseCode = "404", description = "User not found", 
-                    content = @Content(mediaType = "application/json", 
+                @ApiResponse(responseCode = "400", description = "Validation error",
+                    content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(value = """
+                            {
+                                "message": "Validation error",
+                                "errors": [
+                                    "name: Name cannot be blank",
+                                    "name: Name must be between 1 and 100 characters",
+                                    "surname: Surname cannot be blank",
+                                    "surname: Surname must be between 1 and 100 characters",
+                                    "password: Password cannot be blank",
+                                    "password: Password must be between 6 and 50 characters",
+                                    "email: Email cannot be blank",
+                                    "email: Invalid email format",
+                                    "role: Role cannot be blank",
+                                    "role: Invalid role. Allowed values are ADMIN, ORGANIZER, ASSOCIATE"
+                                ]
+                            }
+                        """))),
+                @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json",
                         examples = @ExampleObject(value = "{\"message\": \"User not found\"}"))),
-                @ApiResponse(responseCode = "409", description = "Email conflict", 
-                    content = @Content(mediaType = "application/json", 
-                        examples = @ExampleObject(value = "{\"message\": \"Email already exists\"}")))
+                @ApiResponse(responseCode = "409", description = "Email conflict",
+                    content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(value = "{\"message\": \"Email already exists\"}"))),
+                @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")))
             })
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateUser(@PathVariable Long id,
@@ -71,9 +109,12 @@ public class UserController {
     @Operation(summary = "Delete user", description = "Delete user by id",
             responses = {
                 @ApiResponse(responseCode = "204", description = "User deleted"),
-                @ApiResponse(responseCode = "404", description = "User not found", 
-                    content = @Content(mediaType = "application/json", 
-                        examples = @ExampleObject(value = "{\"message\": \"User not found\"}")))
+                @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(value = "{\"message\": \"User not found\"}"))),
+                @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")))
             })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
@@ -83,10 +124,32 @@ public class UserController {
 
     @Operation(summary = "Get all users", description = "Get all users with pagination",
             responses = {
-                @ApiResponse(responseCode = "200", description = "List of users"),
-                @ApiResponse(responseCode = "400", description = "Bad request", 
-                    content = @Content(mediaType = "application/json", 
-                        examples = @ExampleObject(value = "{\"message\": \"Invalid parameters\"}")))
+                @ApiResponse(responseCode = "200", description = "List of users",
+                    content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(value = """
+                            {
+                                "info": {
+                                    "count": 100,
+                                    "pages": 10,
+                                    "next": "/api/v1/users?page=2",
+                                    "prev": null
+                                },
+                                "results": [
+                                    {
+                                        "name": "John",
+                                        "surname": "Doe",
+                                        "email": "john.doe@example.com",
+                                        "role": "ADMIN"
+                                    }
+                                ]
+                            }
+                        """))),
+                @ApiResponse(responseCode = "400", description = "Invalid parameters",
+                    content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(value = "{\"message\": \"Invalid parameters\"}"))),
+                @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")))
             })
     @GetMapping
     public ResponseEntity<ApiResponseDto<UserDTO>> getAllUsers(
@@ -99,10 +162,22 @@ public class UserController {
 
     @Operation(summary = "Get user by id", description = "Get user by id",
             responses = {
-                @ApiResponse(responseCode = "200", description = "User found"),
-                @ApiResponse(responseCode = "404", description = "User not found", 
-                    content = @Content(mediaType = "application/json", 
-                        examples = @ExampleObject(value = "{\"message\": \"User not found\"}")))
+                @ApiResponse(responseCode = "200", description = "User found",
+                    content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(value = """
+                            {
+                                "name": "John",
+                                "surname": "Doe",
+                                "email": "john.doe@example.com",
+                                "role": "ADMIN"
+                            }
+                        """))),
+                @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(value = "{\"message\": \"User not found\"}"))),
+                @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")))
             })
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
