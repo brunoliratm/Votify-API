@@ -1,4 +1,4 @@
-package com.votify.dto;
+package com.votify.dtos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.votify.dto.UserDTO;
+import com.votify.dtos.UserDTO;
 import com.votify.exceptions.ConflictException;
 import com.votify.exceptions.UserNotFoundException;
 import com.votify.exceptions.ValidationErrorException;
@@ -12,7 +12,6 @@ import com.votify.enums.UserRole;
 import com.votify.models.UserModel;
 import com.votify.repositories.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -45,14 +44,14 @@ public class UserService {
     }
 
     public List<UserDTO> getAllUsers() {
-        return userRepository.findAll().stream().filter(UserModel::isActive).map(this::convertToDTO)
+        return userRepository.findAll().stream().filter(user -> !user.isDeleted()).map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public UserDTO getUserById(Long id) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
-        if (!user.isActive()) {
+        if (user.isDeleted()) {
             throw new UserNotFoundException();
         }
 
@@ -80,7 +79,7 @@ public class UserService {
     private void validateUpdateUser(Long id, UserDTO userDto, BindingResult bindingResult) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
-        if (!user.isActive()) {
+        if (user.isDeleted()) {
             throw new UserNotFoundException();
         }
 
@@ -141,17 +140,17 @@ public class UserService {
 
     public void deleteUser(Long id) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        user.setActive(false);
+        user.delete();
         userRepository.save(user);
     }
 
-    public Optional<UserModel> loadUserByLogin(String login) throws UserNotFoundException {
-        return userRepository.findByEmail(login);
+    public UserModel loadUserByLogin(String login) throws UserNotFoundException {
+        return userRepository.findByEmail(login).orElseThrow(UserNotFoundException::new);
     }
-    public Optional<UserModel> findOrganizer(Long id) {
-        Optional<UserModel> userModelOptional = userRepository.findById(id);
-        if (!userModelOptional.get().getAuthorities().contains(new SimpleGrantedAuthority("ORGANIZER"))) throw new UserNotFoundException();
-        return userModelOptional;
+    public UserModel findOrganizer(Long id) {
+        UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        if (!user.getAuthorities().contains(new SimpleGrantedAuthority("ORGANIZER"))) throw new UserNotFoundException();
+        return user;
     }
 
 }

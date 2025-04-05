@@ -1,8 +1,8 @@
 package com.votify.controllers;
 
-import com.votify.dto.ApiResponseDto;
-import com.votify.dto.SessionDto;
-import com.votify.dto.SessionRequestPutDTO;
+import com.votify.dtos.ApiResponseDto;
+import com.votify.dtos.SessionDto;
+import com.votify.dtos.SessionRequestPutDTO;
 import com.votify.enums.SortSession;
 import com.votify.services.SessionService;
 import io.swagger.v3.oas.annotations.Operation;

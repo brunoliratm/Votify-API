@@ -5,7 +5,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.votify.dto.AuthenticationDto;
+import com.votify.dtos.AuthenticationDto;
+import com.votify.exceptions.InvalidTokenException;
 import com.votify.models.UserModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -72,12 +73,12 @@ public class TokenService {
                     .verify(token);
 
             if (decodedJWT.getExpiresAt().before(new Date())) {
-                throw new RuntimeException("Token expired");
+                throw new InvalidTokenException("Token expired");
             }
 
             return decodedJWT.getClaim("email").asString();
         } catch (JWTVerificationException exception) {
-            throw new RuntimeException("Invalid token", exception);
+            throw new InvalidTokenException();
         }
     }
 
@@ -86,6 +87,6 @@ public class TokenService {
     }
 
     private Instant genExpirationDate() {
-        return LocalDateTime.now().plusDays(7).toInstant(ZoneOffset.of("-03:00"));
+        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
     }
 }

@@ -1,4 +1,4 @@
-package com.votify.infra.sercurity;
+package com.votify.infra.security;
 
 import com.votify.handlers.CustomAuthenticationEntryHandler;
 import com.votify.handlers.CustomAccessDeniedHandler;
@@ -20,7 +20,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfiguration {
 
     @Bean
-    public SecurityFilterChain sercurityFilterChain(HttpSecurity httpSecurity, SecurityFilter securityFilter) throws Exception {
+    public SecurityFilterChain sercurityFilterChain(HttpSecurity httpSecurity, SecurityFilter securityFilter, CustomAccessDeniedHandler accessDeniedHandler,
+                                                    CustomAuthenticationEntryHandler authenticationEntryHandler) throws Exception {
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -33,9 +34,9 @@ public class SecurityConfiguration {
                                 "/swagger-resources/**", "/webjars/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint(new CustomAuthenticationEntryHandler())
-                        .accessDeniedHandler(new CustomAccessDeniedHandler())
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler(accessDeniedHandler)
+                        .authenticationEntryPoint(authenticationEntryHandler)
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
 

@@ -1,16 +1,15 @@
 package com.votify.services;
 
-import com.votify.dto.ApiResponseDto;
-import com.votify.dto.InfoDto;
-import com.votify.dto.SessionDto;
-import com.votify.dto.SessionRequestPutDTO;
+import com.votify.dtos.ApiResponseDto;
+import com.votify.dtos.InfoDto;
+import com.votify.dtos.SessionDto;
+import com.votify.dtos.SessionRequestPutDTO;
 import com.votify.enums.SortSession;
 import com.votify.exceptions.*;
 import com.votify.helpers.UtilHelper;
 import com.votify.models.SessionModel;
 import com.votify.models.UserModel;
 import com.votify.repositories.SessionRepository;
-import com.votify.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -49,16 +48,14 @@ public class SessionService {
             ? sessionDto.startDate()
             : LocalDateTime.now();
 
-        Optional<UserModel> organizer = userService.findOrganizer(sessionDto.organizerId());
-
-        if (organizer.isEmpty()) throw new UserNotFoundException();
+        UserModel organizer = userService.findOrganizer(sessionDto.organizerId());
 
         SessionModel session = new SessionModel();
         session.setTitle(sessionDto.title());
         session.setDescription(sessionDto.description());
         session.setStartDate(startDate);
         session.setEndDate(sessionDto.endDate());
-        session.setOrganizer(organizer.get());
+        session.setOrganizer(organizer);
         sessionRepository.save(session);
     }
 

@@ -1,6 +1,6 @@
 package com.votify.controllers;
 
-import com.votify.dto.UserDTO;
+import com.votify.dtos.UserDTO;
 import com.votify.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
