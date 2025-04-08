@@ -1,16 +1,19 @@
 package com.votify.handlers;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.votify.enums.SortSession;
 import com.votify.exceptions.*;
 import com.votify.helpers.UtilHelper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import com.votify.models.CustomErrorResponse;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import org.slf4j.Logger;
@@ -94,11 +97,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<CustomErrorResponse> handlerGenericException(Exception ex) {
-        logger.error("Unhandled exception", ex);
-        return new ResponseEntity<>(new CustomErrorResponse("An unknown error occurred"),
-            HttpStatus.INTERNAL_SERVER_ERROR);
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<CustomErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        Throwable cause = ex.getCause();
+        String message = ex.getMessage();
+        if (cause instanceof InvalidFormatException formatException) {
+            if (formatException.getTargetType().equals(LocalDateTime.class)) {
+                message = "Invalid date format";
+            }
+        }
+
+        return new ResponseEntity<>(new CustomErrorResponse(message), HttpStatus.BAD_REQUEST);
     }
+
+
 }

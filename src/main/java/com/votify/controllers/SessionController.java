@@ -1,5 +1,6 @@
 package com.votify.controllers;
 
+import com.votify.dtos.requests.SessionRequestPutDto;
 import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.dtos.requests.SessionRequestDto;
 import com.votify.dtos.responses.SessionResponseDto;
@@ -113,10 +114,10 @@ public class SessionController {
     @PutMapping("/{id}")
     public ResponseEntity<SessionResponseDto> update(
             @PathVariable Long id,
-            @RequestBody @Valid SessionRequestDto sessionRequestDto,
+            @RequestBody @Valid SessionRequestPutDto sessionRequestPutDto,
             BindingResult bindingResult
     ) {
-        SessionResponseDto updatedSession = this.sessionService.update(id, sessionRequestDto, bindingResult);
+        SessionResponseDto updatedSession = this.sessionService.update(id, sessionRequestPutDto, bindingResult);
         return ResponseEntity.status(200).body(updatedSession);
     }
 

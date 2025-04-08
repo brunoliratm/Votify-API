@@ -11,7 +11,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record SessionRequestDto(
+public record SessionRequestPutDto(
     @NotNull(message = "{sessions.title.notNull}")
     @NotBlank(message = "{sessions.title.notBlank}")
     String title,
@@ -26,13 +26,10 @@ public record SessionRequestDto(
     @Schema(type = "string", format = "date-time", example = "2025-04-07T10:00:00")
     LocalDateTime startDate,
 
+    @NotNull(message = "{sessions.endDate.notNull}")
     @FutureOrPresent(message = "{sessions.endDate.futureOrPresent}")
     @JsonProperty("end_date")
     @Schema(type = "string", format = "date-time", example = "2025-04-07T10:05:00")
-    LocalDateTime endDate,
-
-    @NotNull(message = "{sessions.organizerId.notNull}")
-    @JsonProperty("organizer_id")
-    Long organizerId
+    LocalDateTime endDate
 ) implements SessionDateInterval {
 }

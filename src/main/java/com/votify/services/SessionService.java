@@ -1,5 +1,6 @@
 package com.votify.services;
 
+import com.votify.dtos.requests.SessionRequestPutDto;
 import com.votify.dtos.responses.AgendaResponseDto;
 import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.dtos.InfoDto;
@@ -7,8 +8,10 @@ import com.votify.dtos.requests.SessionRequestDto;
 import com.votify.dtos.responses.SessionResponseDto;
 import com.votify.dtos.responses.SessionUserDto;
 import com.votify.enums.SortSession;
+import com.votify.enums.UserRole;
 import com.votify.exceptions.*;
 import com.votify.helpers.UtilHelper;
+import com.votify.interfaces.SessionDateInterval;
 import com.votify.models.AgendaModel;
 import com.votify.models.SessionModel;
 import com.votify.models.UserModel;
@@ -55,7 +58,7 @@ public class SessionService {
             ? sessionRequestDto.startDate()
             : LocalDateTime.now();
 
-        UserModel organizer = userRepository.findById(sessionRequestDto.organizerId())
+        UserModel organizer = userRepository.findByIdAndRole(sessionRequestDto.organizerId(), UserRole.ORGANIZER)
             .orElseThrow(UserNotFoundException::new);
 
         SessionModel session = new SessionModel();
@@ -94,7 +97,7 @@ public class SessionService {
     }
 
     @Transactional
-    public SessionResponseDto update(Long id, SessionRequestDto sessionRequestDto, BindingResult bindingResult) {
+    public SessionResponseDto update(Long id, SessionRequestPutDto sessionRequestDto, BindingResult bindingResult) {
         validateErrorFields(sessionRequestDto, bindingResult);
         SessionModel session = getSessionById(id);
         boolean isUpdated = false;
@@ -130,9 +133,9 @@ public class SessionService {
         sessionRepository.save(session);
     }
 
-    private void validateErrorFields(SessionRequestDto sessionRequestDto, BindingResult bindingResult) {
-        if (sessionRequestDto != null && sessionRequestDto.startDate() != null && sessionRequestDto.endDate() != null) {
-            if (!sessionRequestDto.startDate().isBefore(sessionRequestDto.endDate())) {
+    private void validateErrorFields(SessionDateInterval sessionDateInterval, BindingResult bindingResult) {
+        if (sessionDateInterval != null && sessionDateInterval.startDate() != null && sessionDateInterval.endDate() != null) {
+            if (!sessionDateInterval.startDate().isBefore(sessionDateInterval.endDate())) {
                 throw new StartDateBeforeEndDateException();
             }
         }
