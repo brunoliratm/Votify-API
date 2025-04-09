@@ -1,6 +1,7 @@
-package com.votify.dtos;
+package com.votify.dtos.responses;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.votify.dtos.InfoDto;
 
 import java.util.List;
 
