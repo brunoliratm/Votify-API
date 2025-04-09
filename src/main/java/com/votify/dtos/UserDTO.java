@@ -6,19 +6,19 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record UserDTO(
-    @NotBlank(message = "{name.NotBlank}")
-    @Size(min = 1, max = 100, message = "{name.Size}")
+    @NotBlank(message = "{users.name.NotBlank}")
+    @Size(min = 1, max = 100, message = "{users.name.Size}")
     String name, 
-    @NotBlank(message = "{surname.NotBlank}")
-    @Size(min = 1, max = 100, message = "{surname.Size}")
+    @NotBlank(message = "{users.surname.NotBlank}")
+    @Size(min = 1, max = 100, message = "{users.surname.Size}")
     String surname,
-    @NotBlank(message = "{password.NotBlank}")
-    @Size(min = 6, max = 50, message = "{password.Size}")
+    @NotBlank(message = "{users.password.NotBlank}")
+    @Size(min = 6, max = 50, message = "{users.password.Size}")
     String password,
-    @NotBlank(message = "{email.NotBlank}")
-    @Email(message = "{email.Email}") 
+    @NotBlank(message = "{users.email.NotBlank}")
+    @Email(message = "{users.email.Email}")
     String email, 
-    @NotBlank(message = "{role.NotBlank}")
-    @Pattern(regexp = "ADMIN|ORGANIZER|ASSOCIATE", message = "{role.Invalid}")
+    @NotBlank(message = "{users.role.NotBlank}")
+    @Pattern(regexp = "ADMIN|ORGANIZER|ASSOCIATE", message = "{users.role.Invalid}")
     String role
 ) {}

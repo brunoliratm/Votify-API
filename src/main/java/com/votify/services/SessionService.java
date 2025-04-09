@@ -1,11 +1,18 @@
 package com.votify.services;
 
-import com.votify.dtos.ApiResponseDto;
+import com.votify.dtos.requests.SessionRequestPutDto;
+import com.votify.dtos.responses.AgendaResponseDto;
+import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.dtos.InfoDto;
-import com.votify.dtos.SessionDto;
+import com.votify.dtos.requests.SessionRequestDto;
+import com.votify.dtos.responses.SessionResponseDto;
+import com.votify.dtos.responses.SessionUserDto;
 import com.votify.enums.SortSession;
+import com.votify.enums.UserRole;
 import com.votify.exceptions.*;
 import com.votify.helpers.UtilHelper;
+import com.votify.interfaces.SessionDateInterval;
+import com.votify.models.AgendaModel;
 import com.votify.models.SessionModel;
 import com.votify.models.UserModel;
 import com.votify.repositories.SessionRepository;
@@ -20,6 +27,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,42 +36,45 @@ public class SessionService {
     private final SessionRepository sessionRepository;
     private final UserRepository userRepository;
     private final UtilHelper utilHelper;
+    private final AgendaService agendaService;
 
     public SessionService(
         SessionRepository sessionRepository,
         UserRepository userRepository,
-        UtilHelper utilHelper
+        UtilHelper utilHelper,
+        AgendaService agendaService
     ) {
         this.sessionRepository = sessionRepository;
         this.userRepository = userRepository;
         this.utilHelper = utilHelper;
+        this.agendaService = agendaService;
     }
 
     @Transactional
-    public void save(SessionDto sessionDto, BindingResult bindingResult) {
-        validateErrorFields(sessionDto, bindingResult);
+    public void save(SessionRequestDto sessionRequestDto, BindingResult bindingResult) {
+        validateErrorFields(sessionRequestDto, bindingResult);
 
-        LocalDateTime startDate = (sessionDto.startDate() != null)
-            ? sessionDto.startDate()
+        LocalDateTime startDate = (sessionRequestDto.startDate() != null)
+            ? sessionRequestDto.startDate()
             : LocalDateTime.now();
 
-        UserModel organizer = userRepository.findById(sessionDto.organizerId())
+        UserModel organizer = userRepository.findByIdAndRole(sessionRequestDto.organizerId(), UserRole.ORGANIZER)
             .orElseThrow(UserNotFoundException::new);
 
         SessionModel session = new SessionModel();
-        session.setTitle(sessionDto.title());
-        session.setDescription(sessionDto.description());
+        session.setTitle(sessionRequestDto.title());
+        session.setDescription(sessionRequestDto.description());
         session.setStartDate(startDate);
-        session.setEndDate(sessionDto.endDate());
+        session.setEndDate(sessionRequestDto.endDate());
         session.setOrganizer(organizer);
         sessionRepository.save(session);
     }
 
-    public ApiResponseDto<SessionDto> findAll(int page, SortSession sort, Sort.Direction sortDirection) {
+    public ApiResponseDto<SessionResponseDto> findAll(int page, SortSession sort, Sort.Direction sortDirection) {
         int pageIndex = (page > 0) ? (page - 1) : 0;
 
         Pageable pageable = PageRequest.of(pageIndex, 10, Sort.by(sortDirection, String.valueOf(sort)));
-        Page<SessionDto> responsePage = sessionRepository.findAllActive(pageable)
+        Page<SessionResponseDto> responsePage = sessionRepository.findAllActive(pageable)
             .map(this::convertSessionToDto);
 
         if (pageIndex > responsePage.getTotalPages()) {
@@ -80,31 +91,31 @@ public class SessionService {
             .orElseThrow(SessionNotFoundException::new);
     }
 
-    public SessionDto findById(Long id) {
+    public SessionResponseDto findById(Long id) {
         SessionModel session = getSessionById(id);
         return convertSessionToDto(session);
     }
 
     @Transactional
-    public SessionDto update(Long id, SessionDto sessionDto, BindingResult bindingResult) {
-        validateErrorFields(sessionDto, bindingResult);
+    public SessionResponseDto update(Long id, SessionRequestPutDto sessionRequestDto, BindingResult bindingResult) {
+        validateErrorFields(sessionRequestDto, bindingResult);
         SessionModel session = getSessionById(id);
         boolean isUpdated = false;
 
-        if (sessionDto.title() != null && !sessionDto.title().equals(session.getTitle())) {
-            session.setTitle(sessionDto.title());
+        if (sessionRequestDto.title() != null && !sessionRequestDto.title().equals(session.getTitle())) {
+            session.setTitle(sessionRequestDto.title());
             isUpdated = true;
         }
-        if (sessionDto.description() != null && !sessionDto.description().equals(session.getDescription())) {
-            session.setDescription(sessionDto.description());
+        if (sessionRequestDto.description() != null && !sessionRequestDto.description().equals(session.getDescription())) {
+            session.setDescription(sessionRequestDto.description());
             isUpdated = true;
         }
-        if (sessionDto.startDate() != null && !sessionDto.startDate().equals(session.getStartDate())) {
-            session.setStartDate(sessionDto.startDate());
+        if (sessionRequestDto.startDate() != null && !sessionRequestDto.startDate().equals(session.getStartDate())) {
+            session.setStartDate(sessionRequestDto.startDate());
             isUpdated = true;
         }
-        if (sessionDto.endDate() != null && !sessionDto.endDate().equals(session.getEndDate())) {
-            session.setEndDate(sessionDto.endDate());
+        if (sessionRequestDto.endDate() != null && !sessionRequestDto.endDate().equals(session.getEndDate())) {
+            session.setEndDate(sessionRequestDto.endDate());
             isUpdated = true;
         }
 
@@ -122,9 +133,9 @@ public class SessionService {
         sessionRepository.save(session);
     }
 
-    private void validateErrorFields(SessionDto sessionDto, BindingResult bindingResult) {
-        if (sessionDto != null && sessionDto.startDate() != null && sessionDto.endDate() != null) {
-            if (!sessionDto.startDate().isBefore(sessionDto.endDate())) {
+    private void validateErrorFields(SessionDateInterval sessionDateInterval, BindingResult bindingResult) {
+        if (sessionDateInterval != null && sessionDateInterval.startDate() != null && sessionDateInterval.endDate() != null) {
+            if (!sessionDateInterval.startDate().isBefore(sessionDateInterval.endDate())) {
                 throw new StartDateBeforeEndDateException();
             }
         }
@@ -137,13 +148,28 @@ public class SessionService {
         }
     }
 
-    private SessionDto convertSessionToDto(SessionModel sessionModel) {
-        return new SessionDto(
+    private SessionResponseDto convertSessionToDto(SessionModel sessionModel) {
+        UserModel userOrganizer = sessionModel.getOrganizer();
+        SessionUserDto organizer = new SessionUserDto(
+            userOrganizer.getId(),
+            userOrganizer.getName(),
+            userOrganizer.getEmail(),
+            userOrganizer.getRole()
+        );
+
+        List<AgendaResponseDto> agendas = new ArrayList<>();
+        for (AgendaModel agenda : sessionModel.getAgendas()) {
+            agendas.add(this.agendaService.convertAgendaToDto(agenda));
+        }
+
+        return new SessionResponseDto(
+            sessionModel.getId(),
             sessionModel.getTitle(),
             sessionModel.getDescription(),
             sessionModel.getStartDate(),
             sessionModel.getEndDate(),
-            sessionModel.getOrganizer().getId()
+            organizer,
+            agendas
         );
     }
 }
