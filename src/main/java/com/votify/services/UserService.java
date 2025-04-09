@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.votify.exceptions.ConflictException;
 import com.votify.exceptions.UserNotFoundException;
 import com.votify.exceptions.ValidationErrorException;
-import com.votify.dtos.ApiResponseDto;
+import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.dtos.UserDTO;
 import com.votify.enums.UserRole;
 import com.votify.models.UserModel;
