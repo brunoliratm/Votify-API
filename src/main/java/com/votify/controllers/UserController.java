@@ -1,6 +1,8 @@
 package com.votify.controllers;
 
-import com.votify.dtos.UserDTO;
+import com.votify.dtos.requests.UserRequestDTO;
+import com.votify.dtos.responses.UserResponseDTO;
+import com.votify.enums.UserRole;
 import com.votify.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -69,9 +71,9 @@ public class UserController {
                                     examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")))
             })
     @PostMapping
-    public ResponseEntity<Void> createUser(@RequestBody @Valid UserDTO userDto,
+    public ResponseEntity<Void> createUser(@RequestBody @Valid UserRequestDTO userRequestDto,
                                            BindingResult bindingResult) {
-        userService.createUser(userDto, bindingResult);
+        userService.createUser(userRequestDto, bindingResult);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -117,8 +119,8 @@ public class UserController {
             })
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateUser(@PathVariable Long id,
-                                           @RequestBody @Valid UserDTO userDto, BindingResult bindingResult) {
-        userService.updateUser(id, userDto, bindingResult);
+                                           @RequestBody @Valid UserRequestDTO userRequestDto, BindingResult bindingResult) {
+        userService.updateUser(id, userRequestDto, bindingResult);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -184,11 +186,11 @@ public class UserController {
                                     examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")))
             })
     @GetMapping
-    public ResponseEntity<ApiResponseDto<UserDTO>> getAllUsers(
+    public ResponseEntity<ApiResponseDto<UserResponseDTO>> getAllUsers(
             @RequestParam(required = false, defaultValue = "1") int page,
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) String role) {
-        ApiResponseDto<UserDTO> response = userService.getAllUsers(page, name, role);
+            @RequestParam(required = false) UserRole role) {
+        ApiResponseDto<UserResponseDTO> response = userService.getAllUsers(page, name, role);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -220,8 +222,8 @@ public class UserController {
                                     examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")))
             })
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        UserDTO user = userService.getUserById(id);
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
+        UserResponseDTO user = userService.getUserById(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }

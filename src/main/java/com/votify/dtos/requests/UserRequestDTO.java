@@ -1,11 +1,11 @@
-package com.votify.dtos;
+package com.votify.dtos.requests;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public record UserDTO(
+public record UserRequestDTO(
     @NotBlank(message = "{users.name.NotBlank}")
     @Size(min = 1, max = 100, message = "{users.name.Size}")
     String name,

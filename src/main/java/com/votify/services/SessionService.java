@@ -8,7 +8,6 @@ import com.votify.dtos.requests.SessionRequestDto;
 import com.votify.dtos.responses.SessionResponseDto;
 import com.votify.dtos.responses.SessionUserDto;
 import com.votify.enums.SortSession;
-import com.votify.enums.UserRole;
 import com.votify.exceptions.*;
 import com.votify.helpers.UtilHelper;
 import com.votify.interfaces.SessionDateInterval;
@@ -16,7 +15,6 @@ import com.votify.models.AgendaModel;
 import com.votify.models.SessionModel;
 import com.votify.models.UserModel;
 import com.votify.repositories.SessionRepository;
-import com.votify.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,7 +45,7 @@ public class SessionService {
         this.sessionRepository = sessionRepository;
         this.utilHelper = utilHelper;
         this.agendaService = agendaService;
-        this.userService = userService
+        this.userService = userService;
     }
 
     @Transactional
@@ -58,7 +56,7 @@ public class SessionService {
             ? sessionRequestDto.startDate()
             : LocalDateTime.now();
 
-        UserModel organizer = userService.findOrganizer(sessionDto.organizerId());
+        UserModel organizer = userService.findOrganizer(sessionRequestDto.organizerId());
 
         SessionModel session = new SessionModel();
         session.setTitle(sessionRequestDto.title());
