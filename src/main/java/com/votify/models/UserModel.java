@@ -39,12 +39,6 @@ public class UserModel implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    private boolean active=true;
-
-    public boolean isAdmin() {
-        return role == UserRole.ADMIN;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (role == UserRole.ADMIN) {

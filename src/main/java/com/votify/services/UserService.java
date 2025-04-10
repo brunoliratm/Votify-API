@@ -4,10 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.votify.dto.UserDTO;
 import com.votify.exceptions.ConflictException;
 import com.votify.exceptions.UserNotFoundException;
 import com.votify.exceptions.ValidationErrorException;
+import com.votify.dtos.responses.ApiResponseDto;
+import com.votify.dtos.UserDTO;
 import com.votify.enums.UserRole;
 import com.votify.models.UserModel;
 import com.votify.repositories.UserRepository;
@@ -16,12 +17,20 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import com.votify.dtos.InfoDto;
+import com.votify.helpers.UtilHelper;
 
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private UtilHelper utilHelper;
 
     public void createUser(UserDTO userDto, BindingResult bindingResult) {
         validateFieldsWithCheckEmail(userDto, bindingResult);
@@ -38,16 +47,47 @@ public class UserService {
             } catch (IllegalArgumentException e) {
                 throw new ValidationErrorException(List.of("Invalid role"));
             }
+        } else {
+            userModel.setRole(UserRole.ASSOCIATE);
         }
-
         userRepository.save(userModel);
     }
 
-    public List<UserDTO> getAllUsers() {
-        return userRepository.findAll().stream().filter(UserModel::isActive).map(this::convertToDTO)
+    public ApiResponseDto<UserDTO> getAllUsers(int page, String name, String role) {
+        int pageIndex = (page > 0) ? (page - 1) : 0;
+        
+        Pageable pageable = PageRequest.of(pageIndex, 10);
+        Page<UserModel> userPage;
+        
+        if (name != null && !name.isEmpty() && role != null && !role.isEmpty()) {
+            try {
+                UserRole userRole = UserRole.valueOf(role.toUpperCase());
+                userPage = userRepository.findByActiveTrueAndNameContainingIgnoreCaseAndRole(name, userRole, pageable);
+            } catch (IllegalArgumentException e) {
+                userPage = userRepository.findByActiveTrueAndNameContainingIgnoreCase(name, pageable);
+            }
+        } else if (name != null && !name.isEmpty()) {
+            userPage = userRepository.findByActiveTrueAndNameContainingIgnoreCase(name, pageable);
+        } else if (role != null && !role.isEmpty()) {
+            try {
+                UserRole userRole = UserRole.valueOf(role.toUpperCase());
+                userPage = userRepository.findByActiveTrueAndRole(userRole, pageable);
+            } catch (IllegalArgumentException e) {
+                userPage = userRepository.findByActiveTrue(pageable);
+            }
+        } else {
+            userPage = userRepository.findByActiveTrue(pageable);
+        }
+        
+        List<UserDTO> userDtos = userPage.getContent().stream()
+                .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        
+        InfoDto info = utilHelper.buildPageableInfoDto(userPage, "/users");
+        
+        return new ApiResponseDto<>(info, userDtos);
     }
-
+    
     public UserDTO getUserById(Long id) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
