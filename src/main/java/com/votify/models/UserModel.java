@@ -19,7 +19,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserModel implements UserDetails {
+public class UserModel extends BaseEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -39,17 +39,11 @@ public class UserModel implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    private boolean active=true;
-
     @Column(name = "reset_password_code", length = 6)
     private String resetPasswordCode;
 
     @Column(name = "reset_password_expiration")
     private LocalDateTime resetPasswordExpirationCode;
-
-    public boolean isAdmin() {
-        return role == UserRole.ADMIN;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -82,8 +76,4 @@ public class UserModel implements UserDetails {
         return true;
     }
 
-    @Override
-    public boolean isEnabled() {
-        return isActive();
-    }
 }

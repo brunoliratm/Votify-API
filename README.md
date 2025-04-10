@@ -46,6 +46,14 @@ java -jar target/votify-0.0.1-SNAPSHOT.jar
 ### Users
 - `POST /api/v1/users` - Create a new user
 - `GET /api/v1/users` - Get all users
+  - Query Parameters:
+    - `page` (optional, default: 1) - Page number for pagination
+      - Example: `/api/v1/users?page=2`
+    - `name` (optional) - Filter users by name
+      - Example: `/api/v1/users?name=John`
+    - `role` (optional) - Filter users by role
+      - Example: `/api/v1/users?role=ADMIN`
+    - Combined example: `/api/v1/users?page=2&name=John&role=ASSOCIATE`
 - `GET /api/v1/users/{id}` - Get user by ID
 - `PUT /api/v1/users/{id}` - Update user
 - `DELETE /api/v1/users/{id}` - Delete user

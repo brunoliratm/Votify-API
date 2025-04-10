@@ -1,8 +1,8 @@
 package com.votify.controllers;
 
-import com.votify.dto.AuthenticationDto;
-import com.votify.dto.ResetPasswordDTO;
-import com.votify.dto.UserEmailDto;
+import com.votify.dtos.AuthenticationDto;
+import com.votify.dtos.ResetPasswordDTO;
+import com.votify.dtos.UserEmailDto;
 import com.votify.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -59,7 +59,6 @@ public class AuthController {
                     )
             )
     })
-
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody @Valid AuthenticationDto authenticationDto) {
         String token = authService.login(authenticationDto);

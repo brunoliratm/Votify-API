@@ -1,5 +1,6 @@
 package com.votify.services;
 
+import com.votify.exceptions.EmailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import jakarta.mail.MessagingException;
@@ -32,6 +33,6 @@ public class EmailService {
             helper.setText(htmlContent, true);
             mailSender.send(message);
         } catch (MessagingException e) {
-            e.printStackTrace();        }
+            throw new EmailSendException("Failed to send an email. Try again later.", e);        }
     }
 }

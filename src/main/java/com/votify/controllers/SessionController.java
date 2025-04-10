@@ -1,8 +1,9 @@
 package com.votify.controllers;
 
-import com.votify.dto.ApiResponseDto;
-import com.votify.dto.SessionDto;
-import com.votify.dto.SessionRequestPutDTO;
+import com.votify.dtos.requests.SessionRequestPutDto;
+import com.votify.dtos.responses.ApiResponseDto;
+import com.votify.dtos.requests.SessionRequestDto;
+import com.votify.dtos.responses.SessionResponseDto;
 import com.votify.enums.SortSession;
 import com.votify.services.SessionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,7 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/sessions")
+@RequestMapping("api/${api.version}/sessions")
 public class SessionController {
     private final SessionService sessionService;
 
@@ -30,17 +31,9 @@ public class SessionController {
             @ApiResponse(responseCode = "400", description = "Invalid data",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(value = "{\"message\": \"Invalid data, missing title or description\"}")
+                            examples = @ExampleObject(value = "{\"message\": \"Validation error\", \"errors\": [\"Session title can't be null\"]}")
                     )
             ),
-            @ApiResponse(responseCode = "401", description = "Unauthorized access",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
-                    )),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
-                    )),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(
                             mediaType = "application/json",
@@ -50,10 +43,10 @@ public class SessionController {
     })
     @PostMapping
     public ResponseEntity<Void> create(
-            @RequestBody @Valid SessionDto sessionDto,
+            @RequestBody @Valid SessionRequestDto sessionRequestDto,
             BindingResult bindingResult
     ) {
-        this.sessionService.save(sessionDto, bindingResult);
+        this.sessionService.save(sessionRequestDto, bindingResult);
         return ResponseEntity.status(201).build();
     }
 
@@ -71,12 +64,12 @@ public class SessionController {
                     ))
     })
     @GetMapping
-    public ResponseEntity<ApiResponseDto<SessionDto>> getAll(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam SortSession sort,
-            @RequestParam Sort.Direction direction
+    public ResponseEntity<ApiResponseDto<SessionResponseDto>> getAll(
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "id") SortSession sort,
+            @RequestParam(required = false, defaultValue = "ASC")  Sort.Direction direction
     ) {
-        ApiResponseDto<SessionDto> sessions = sessionService.findAll(page, sort, direction);
+        ApiResponseDto<SessionResponseDto> sessions = sessionService.findAll(page, sort, direction);
         return new ResponseEntity<>(sessions, HttpStatus.OK);
     }
 
@@ -100,17 +93,17 @@ public class SessionController {
             )
     })
     @GetMapping("/{id}")
-    public ResponseEntity<SessionDto> getById(@PathVariable Long id) {
-        SessionDto session = sessionService.findById(id);
+    public ResponseEntity<SessionResponseDto> getById(@PathVariable Long id) {
+        SessionResponseDto session = sessionService.findById(id);
         return new ResponseEntity<>(session, HttpStatus.OK);
     }
 
-    @Operation(summary = "Update part of a session", description = "Update a session", responses = {
+    @Operation(summary = "Update a session", description = "Update a session", responses = {
             @ApiResponse(responseCode = "200", description = "Session updated"),
             @ApiResponse(responseCode = "400", description = "Invalid data",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(value = "{\"message\": \"Invalid data, missing title or description\"}")
+                            examples = @ExampleObject(value = "{\"message\": \"Validation error\", \"errors\": [\"Session title can't be null\"]}")
                     )
             ),
             @ApiResponse(responseCode = "401", description = "Unauthorized access",
@@ -135,16 +128,16 @@ public class SessionController {
             )
     })
     @PutMapping("/{id}")
-    public ResponseEntity<SessionDto> update(
+    public ResponseEntity<SessionResponseDto> update(
             @PathVariable Long id,
-            @RequestBody @Valid SessionRequestPutDTO sessionRequestPutDTO,
+            @RequestBody @Valid SessionRequestPutDto sessionRequestPutDto,
             BindingResult bindingResult
     ) {
-        SessionDto updatedSession = this.sessionService.update(id, sessionRequestPutDTO, bindingResult);
+        SessionResponseDto updatedSession = this.sessionService.update(id, sessionRequestPutDto, bindingResult);
         return ResponseEntity.status(200).body(updatedSession);
     }
 
-    @Operation(summary = "Delete a session", description = "Delete a sessionon", responses = {
+    @Operation(summary = "Delete a session", description = "Delete a session", responses = {
             @ApiResponse(responseCode = "204", description = "Session deleted"),
             @ApiResponse(responseCode = "401", description = "Unauthorized access",
                     content = @Content(mediaType = "application/json",

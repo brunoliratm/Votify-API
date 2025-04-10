@@ -1,4 +1,4 @@
-package com.votify.infra.sercurity;
+package com.votify.infra.security;
 
 import com.votify.exceptions.UserNotFoundException;
 import com.votify.models.UserModel;
@@ -34,15 +34,11 @@ public class SecurityFilter extends OncePerRequestFilter {
         if (token != null) {
             try {
                 var login = tokenService.validateToken(token);
-                Optional<UserModel> userModelOptional = userService.loadUserByLogin(login);
-                if (userModelOptional.isEmpty()) throw new UserNotFoundException();
+                UserModel userModelOptional = userService.loadUserByLogin(login);
 
-                System.out.println("Roles do usuário: " + userModelOptional.get().getAuthorities());
-
-                var authentication = new UsernamePasswordAuthenticationToken(userModelOptional.get(), null, userModelOptional.get().getAuthorities());
+                var authentication = new UsernamePasswordAuthenticationToken(userModelOptional, null, userModelOptional.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (Exception e) {
-                System.err.println("Error during token validation: " + e.getMessage());
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }

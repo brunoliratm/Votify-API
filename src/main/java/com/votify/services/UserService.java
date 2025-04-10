@@ -3,21 +3,28 @@ package com.votify.services;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import com.votify.dtos.responses.UserResponseDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.votify.dto.UserDTO;
 import com.votify.exceptions.ConflictException;
 import com.votify.exceptions.UserNotFoundException;
 import com.votify.exceptions.ValidationErrorException;
+import com.votify.dtos.responses.ApiResponseDto;
+import com.votify.dtos.requests.UserRequestDTO;
 import com.votify.enums.UserRole;
 import com.votify.models.UserModel;
 import com.votify.repositories.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import com.votify.dtos.InfoDto;
+import com.votify.helpers.UtilHelper;
 
 @Service
 public class UserService {
@@ -25,50 +32,91 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public void createUser(UserDTO userDto, BindingResult bindingResult) {
-        validateFieldsWithCheckEmail(userDto, bindingResult);
+    @Autowired
+    private UtilHelper utilHelper;
+
+    public void createUser(UserRequestDTO userRequestDto, BindingResult bindingResult) {
+        validateFieldsWithCheckEmail(userRequestDto, bindingResult);
 
         UserModel userModel = new UserModel();
-        userModel.setName(userDto.name());
-        userModel.setSurname(userDto.surname());
-        userModel.setEmail(userDto.email());
-        userModel.setPassword(new BCryptPasswordEncoder().encode(userDto.password()));
+        userModel.setName(userRequestDto.name());
+        userModel.setSurname(userRequestDto.surname());
+        userModel.setEmail(userRequestDto.email());
+        userModel.setPassword(new BCryptPasswordEncoder().encode(userRequestDto.password()));
 
-        if (userDto.role() != null && !userDto.role().isEmpty()) {
+        if (userRequestDto.role() != null && !userRequestDto.role().isEmpty()) {
             try {
-                userModel.setRole(UserRole.valueOf(userDto.role().toUpperCase()));
+                userModel.setRole(UserRole.valueOf(userRequestDto.role().toUpperCase()));
             } catch (IllegalArgumentException e) {
                 throw new ValidationErrorException(List.of("Invalid role"));
             }
+        } else {
+            userModel.setRole(UserRole.ASSOCIATE);
         }
-
         userRepository.save(userModel);
     }
 
-    public List<UserDTO> getAllUsers() {
-        return userRepository.findAll().stream().filter(UserModel::isActive).map(this::convertToDTO)
+    public ApiResponseDto<UserResponseDTO> getAllUsers(int page, String name, UserRole role) {
+        String roleValue;
+        if (role != null) {
+            roleValue = role.getRole();
+        } else {
+            roleValue = null;
+        }
+
+        int pageIndex = (page > 0) ? (page - 1) : 0;
+
+        Pageable pageable = PageRequest.of(pageIndex, 10);
+        Page<UserModel> userPage;
+
+        if (name != null && !name.isEmpty() && roleValue != null && !roleValue.isEmpty()) {
+            try {
+                UserRole userRole = UserRole.valueOf(roleValue.toUpperCase());
+                userPage = userRepository.findByDeletedAtIsNullAndNameContainingIgnoreCaseAndRole(name, userRole, pageable);
+            } catch (IllegalArgumentException e) {
+                userPage = userRepository.findByDeletedAtIsNullAndNameContainingIgnoreCase(name, pageable);
+            }
+        } else if (name != null && !name.isEmpty()) {
+            userPage = userRepository.findByDeletedAtIsNullAndNameContainingIgnoreCase(name, pageable);
+        } else if (role != null && !roleValue.isEmpty()) {
+            try {
+                UserRole userRole = UserRole.valueOf(roleValue.toUpperCase());
+                userPage = userRepository.findByDeletedAtIsNullAndRole(userRole, pageable);
+            } catch (IllegalArgumentException e) {
+                userPage = userRepository.findByDeletedAtIsNull(pageable);
+            }
+        } else {
+            userPage = userRepository.findByDeletedAtIsNull(pageable);
+        }
+
+        List<UserResponseDTO> userRequestDtos = userPage.getContent().stream()
+                .map(this::convertToDTO)
                 .collect(Collectors.toList());
+
+        InfoDto info = utilHelper.buildPageableInfoDto(userPage, "/users");
+
+        return new ApiResponseDto<>(info, userRequestDtos);
     }
 
-    public UserDTO getUserById(Long id) {
+    public UserResponseDTO getUserById(Long id) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
-        if (!user.isActive()) {
+        if (user.isDeleted()) {
             throw new UserNotFoundException();
         }
 
         return convertToDTO(user);
     }
 
-    private UserDTO convertToDTO(UserModel userModel) {
-        return new UserDTO(userModel.getName(), userModel.getSurname(), null, userModel.getEmail(),
+    private UserResponseDTO convertToDTO(UserModel userModel) {
+        return new UserResponseDTO(userModel.getName(), userModel.getSurname(), userModel.getEmail(),
                 userModel.getRole() != null ? userModel.getRole().toString() : null);
     }
 
-    private void validateFieldsWithCheckEmail(UserDTO userDto, BindingResult bindingResult) {
-        Optional<UserModel> checkEmailExists = userRepository.findByEmail(userDto.email());
+    private void validateFieldsWithCheckEmail(UserRequestDTO userRequestDto, BindingResult bindingResult) {
+        Optional<UserModel> checkEmailExists = userRepository.findByEmail(userRequestDto.email());
 
-        if (checkEmailExists.isPresent() )
+        if (checkEmailExists.isPresent())
             throw new ConflictException("Email already exists");
 
         if (bindingResult.hasErrors()) {
@@ -78,10 +126,10 @@ public class UserService {
         }
     }
 
-    private void validateUpdateUser(Long id, UserDTO userDto, BindingResult bindingResult) {
+    private void validateUpdateUser(Long id, UserRequestDTO userRequestDto, BindingResult bindingResult) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
-        if (!user.isActive()) {
+        if (user.isDeleted()) {
             throw new UserNotFoundException();
         }
 
@@ -91,17 +139,17 @@ public class UserService {
             throw new ValidationErrorException(errors);
         }
 
-        if (userDto.email() != null && !userDto.email().isEmpty()
-                && !userDto.email().equals(user.getEmail())) {
-            Optional<UserModel> existingUserWithEmail = userRepository.findByEmail(userDto.email());
+        if (userRequestDto.email() != null && !userRequestDto.email().isEmpty()
+                && !userRequestDto.email().equals(user.getEmail())) {
+            Optional<UserModel> existingUserWithEmail = userRepository.findByEmail(userRequestDto.email());
             if (existingUserWithEmail.isPresent()) {
                 throw new ConflictException("Email already exists");
             }
         }
 
-        if (userDto.role() != null && !userDto.role().isEmpty()) {
+        if (userRequestDto.role() != null && !userRequestDto.role().isEmpty()) {
             try {
-                UserRole.valueOf(userDto.role().toUpperCase());
+                UserRole.valueOf(userRequestDto.role().toUpperCase());
             } catch (IllegalArgumentException e) {
                 throw new ValidationErrorException(List.of("Invalid role"));
             }
@@ -112,29 +160,29 @@ public class UserService {
         return field != null && !field.isEmpty();
     }
 
-    public void updateUser(Long id, UserDTO userDto, BindingResult bindingResult) {
-        validateUpdateUser(id, userDto, bindingResult);
+    public void updateUser(Long id, UserRequestDTO userRequestDto, BindingResult bindingResult) {
+        validateUpdateUser(id, userRequestDto, bindingResult);
 
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
-        if (isValidField(userDto.email()) && !userDto.email().equals(user.getEmail())) {
-            user.setEmail(userDto.email());
+        if (isValidField(userRequestDto.email()) && !userRequestDto.email().equals(user.getEmail())) {
+            user.setEmail(userRequestDto.email());
         }
 
-        if (isValidField(userDto.name())) {
-            user.setName(userDto.name());
+        if (isValidField(userRequestDto.name())) {
+            user.setName(userRequestDto.name());
         }
 
-        if (isValidField(userDto.surname())) {
-            user.setSurname(userDto.surname());
+        if (isValidField(userRequestDto.surname())) {
+            user.setSurname(userRequestDto.surname());
         }
 
-        if (isValidField(userDto.password())) {
-            user.setPassword(userDto.password());
+        if (isValidField(userRequestDto.password())) {
+            user.setPassword(userRequestDto.password());
         }
 
-        if (isValidField(userDto.role())) {
-            user.setRole(UserRole.valueOf(userDto.role().toUpperCase()));
+        if (isValidField(userRequestDto.role())) {
+            user.setRole(UserRole.valueOf(userRequestDto.role().toUpperCase()));
         }
 
         userRepository.save(user);
@@ -142,17 +190,18 @@ public class UserService {
 
     public void deleteUser(Long id) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        user.setActive(false);
+        user.delete();
         userRepository.save(user);
     }
 
-    public Optional<UserModel> loadUserByLogin(String login) throws UserNotFoundException {
-        return userRepository.findByEmail(login);
+    public UserModel loadUserByLogin(String login) throws UserNotFoundException {
+        return userRepository.findByEmail(login).orElseThrow(UserNotFoundException::new);
     }
-    public Optional<UserModel> findOrganizer(Long id) {
-        Optional<UserModel> userModelOptional = userRepository.findById(id);
-        if (!userModelOptional.get().getAuthorities().contains(new SimpleGrantedAuthority("ORGANIZER"))) throw new UserNotFoundException();
-        return userModelOptional;
+
+    public UserModel findOrganizer(Long id) {
+        UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        if (!user.getAuthorities().contains(new SimpleGrantedAuthority("ORGANIZER"))) throw new UserNotFoundException();
+        return user;
     }
 
     @Transactional
