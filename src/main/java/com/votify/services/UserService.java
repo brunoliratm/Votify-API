@@ -62,21 +62,21 @@ public class UserService {
         if (name != null && !name.isEmpty() && role != null && !role.isEmpty()) {
             try {
                 UserRole userRole = UserRole.valueOf(role.toUpperCase());
-                userPage = userRepository.findByActiveTrueAndNameContainingIgnoreCaseAndRole(name, userRole, pageable);
+                userPage = userRepository.findByDeletedAtIsNullAndNameContainingIgnoreCaseAndRole(name, userRole, pageable);
             } catch (IllegalArgumentException e) {
-                userPage = userRepository.findByActiveTrueAndNameContainingIgnoreCase(name, pageable);
+                userPage = userRepository.findByDeletedAtIsNullAndNameContainingIgnoreCase(name, pageable);
             }
         } else if (name != null && !name.isEmpty()) {
-            userPage = userRepository.findByActiveTrueAndNameContainingIgnoreCase(name, pageable);
+            userPage = userRepository.findByDeletedAtIsNullAndNameContainingIgnoreCase(name, pageable);
         } else if (role != null && !role.isEmpty()) {
             try {
                 UserRole userRole = UserRole.valueOf(role.toUpperCase());
-                userPage = userRepository.findByActiveTrueAndRole(userRole, pageable);
+                userPage = userRepository.findByDeletedAtIsNullAndRole(userRole, pageable);
             } catch (IllegalArgumentException e) {
-                userPage = userRepository.findByActiveTrue(pageable);
+                userPage = userRepository.findByDeletedAtIsNull(pageable);
             }
         } else {
-            userPage = userRepository.findByActiveTrue(pageable);
+            userPage = userRepository.findByDeletedAtIsNull(pageable);
         }
         
         List<UserDTO> userDtos = userPage.getContent().stream()
@@ -91,7 +91,7 @@ public class UserService {
     public UserDTO getUserById(Long id) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
-        if (!user.isActive()) {
+        if (user.isDeleted()) {
             throw new UserNotFoundException();
         }
 
@@ -119,7 +119,7 @@ public class UserService {
     private void validateUpdateUser(Long id, UserDTO userDto, BindingResult bindingResult) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
-        if (!user.isActive()) {
+        if (user.isDeleted()) {
             throw new UserNotFoundException();
         }
 
@@ -180,7 +180,7 @@ public class UserService {
 
     public void deleteUser(Long id) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        user.setActive(false);
+        user.delete();
         userRepository.save(user);
     }
 
