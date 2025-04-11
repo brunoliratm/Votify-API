@@ -34,6 +34,14 @@ public class AgendaController {
                             examples = @ExampleObject(value = "{\"message\": \"Validation error\", \"errors\": [\"Agenda title can't be null\"]}")
                     )
             ),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
+                    )),
+            @ApiResponse(responseCode = "403", description = "Access denied",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
+                    )),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(
                             mediaType = "application/json",
@@ -52,6 +60,10 @@ public class AgendaController {
 
     @Operation(summary = "Get all agendas", description = "Get all agendas", responses = {
         @ApiResponse(responseCode = "200", description = "List of agendas"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
+                    )),
         @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(
                 mediaType = "application/json",
@@ -71,6 +83,10 @@ public class AgendaController {
 
     @Operation(summary = "Get an agenda by id", description = "Get an agenda by id", responses = {
         @ApiResponse(responseCode = "200", description = "Agenda found"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
+                    )),
         @ApiResponse(responseCode = "404", description = "Agenda not found",
             content = @Content(mediaType = "application/json",
                 examples = {
@@ -98,6 +114,14 @@ public class AgendaController {
                 examples = @ExampleObject(value = "{\"message\": \"Validation error\", \"errors\": [\"Agenda title can't be null\"]}")
             )
         ),
+        @ApiResponse(responseCode = "401", description = "Unauthorized access",
+            content = @Content(mediaType = "application/json",
+                    examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
+            )),
+        @ApiResponse(responseCode = "403", description = "Access denied",
+                content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
+             )),
         @ApiResponse(responseCode = "404", description = "Agenda not found",
             content = @Content(mediaType = "application/json",
                 examples = {
@@ -123,6 +147,14 @@ public class AgendaController {
 
     @Operation(summary = "Delete an agenda", description = "Delete an agenda", responses = {
         @ApiResponse(responseCode = "204", description = "Agenda deleted"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized access",
+                content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
+                )),
+        @ApiResponse(responseCode = "403", description = "Access denied",
+                content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
+                )),
         @ApiResponse(responseCode = "404", description = "Agenda not found",
             content = @Content(mediaType = "application/json",
                 examples = {

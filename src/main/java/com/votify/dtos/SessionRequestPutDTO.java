@@ -1,0 +1,27 @@
+package com.votify.dtos;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import java.time.LocalDateTime;
+
+public record SessionRequestPutDTO(@NotNull(message = "{sessions.title.notNull}")
+                                   @NotBlank(message = "{sessions.title.notBlank}")
+                                   String title,
+
+                                   @NotNull(message = "{sessions.description.notNull}")
+                                   @NotBlank(message = "{sessions.description.notBlank}")
+                                   String description,
+
+                                   @NotNull(message = "{sessions.startDate.notNull}")
+                                   @FutureOrPresent(message = "{sessions.startDate.futureOrPresent}")
+                                   @JsonProperty("start_date")
+                                   LocalDateTime startDate,
+
+                                   @FutureOrPresent(message = "{sessions.endDate.futureOrPresent}")
+                                   @JsonProperty("end_date")
+                                   LocalDateTime endDate
+                                   ) {
+}
