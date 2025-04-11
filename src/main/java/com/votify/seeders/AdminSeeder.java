@@ -36,6 +36,6 @@ public class AdminSeeder implements CommandLineRunner {
         BindingResult bindingResult = new BeanPropertyBindingResult(adminDto, "userRequestDto");
         userService.createUser(adminDto, bindingResult);
 
-        log.info("✅ ADMIN user create successfully!");
+        log.info("ADMIN user create successfully!");
     }
 }
