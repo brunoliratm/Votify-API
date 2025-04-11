@@ -34,6 +34,14 @@ public class SessionController {
                             examples = @ExampleObject(value = "{\"message\": \"Validation error\", \"errors\": [\"Session title can't be null\"]}")
                     )
             ),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
+                    )),
+            @ApiResponse(responseCode = "403", description = "Access denied",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
+                    )),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(
                             mediaType = "application/json",
@@ -52,16 +60,16 @@ public class SessionController {
 
     @Operation(summary = "Get all sessions", description = "Get all sessions", responses = {
             @ApiResponse(responseCode = "200", description = "List of sessions"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access",
+            content = @Content(mediaType = "application/json",
+                    examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
+            )),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(
                             mediaType = "application/json",
                             examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")
                     )
-            ),
-            @ApiResponse(responseCode = "401", description = "Unauthorized access",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
-                    ))
+            )
     })
     @GetMapping
     public ResponseEntity<ApiResponseDto<SessionResponseDto>> getAll(

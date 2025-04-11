@@ -28,7 +28,9 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(HttpMethod.POST, "api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "api/v1/sessions/**").hasAnyAuthority("ASSOCIATE")
+                        .requestMatchers(HttpMethod.GET, "api/v1/agendas/**").hasAnyAuthority("ASSOCIATE")
                         .requestMatchers("api/v1/sessions/**").hasAnyAuthority("ORGANIZER")
+                        .requestMatchers("api/v1/agendas/**").hasAnyAuthority("ORGANIZER")
                         .requestMatchers("api/v1/users/**").hasAnyAuthority("ADMIN")
                         .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**",
                                 "/swagger-resources/**", "/webjars/**").permitAll()
