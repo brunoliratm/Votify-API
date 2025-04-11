@@ -14,9 +14,10 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
 
     Page<UserModel> findByDeletedAtIsNull(Pageable pageable);
 
-    Page<UserModel> findByDeletedAtIsNullAndNameContainingIgnoreCase(String name, Pageable pageable);
-
     Page<UserModel> findByDeletedAtIsNullAndRole(UserRole role, Pageable pageable);
 
+    Page<UserModel> findByDeletedAtIsNullAndNameContainingIgnoreCase(String name, Pageable pageable);
+
     Page<UserModel> findByDeletedAtIsNullAndNameContainingIgnoreCaseAndRole(String name, UserRole role, Pageable pageable);
+
 }
