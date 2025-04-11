@@ -30,6 +30,12 @@ public class GlobalExceptionHandler {
     private final UtilHelper utilHelper = new UtilHelper();
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<CustomErrorResponse> handlerUserNotFound(UserNotFoundException ex) {
+        return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(ValidationErrorException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String, Object>> handlerValidationError(ValidationErrorException ex) {
@@ -114,12 +120,6 @@ public class GlobalExceptionHandler {
 
         CustomErrorResponse response = new CustomErrorResponse(message);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<CustomErrorResponse> handlerUserNotFound(UserNotFoundException ex) {
-        return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(SessionNotFoundException.class)
