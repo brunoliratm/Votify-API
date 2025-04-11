@@ -93,5 +93,6 @@ public class AuthService implements UserDetailsService {
         user.setResetPasswordCode(null);
         user.setResetPasswordExpirationCode(null);
         userService.updateUser(user);
+
     }
 }

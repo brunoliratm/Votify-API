@@ -42,7 +42,7 @@ public class UserService {
         userModel.setName(userRequestDto.name());
         userModel.setSurname(userRequestDto.surname());
         userModel.setEmail(userRequestDto.email());
-        userModel.setPassword(new BCryptPasswordEncoder().encode(userRequestDto.password()));
+
 
         if (userRequestDto.role() != null && !userRequestDto.role().isEmpty()) {
             try {
@@ -210,4 +210,5 @@ public class UserService {
     public void updateUser(UserModel user) {
         userRepository.save(user);
     }
+
 }

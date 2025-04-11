@@ -64,6 +64,7 @@ public class UserModel extends BaseEntity implements UserDetails {
     @Override
     public boolean isAccountNonExpired() {
         return true;
+
     }
 
     @Override
@@ -73,11 +74,6 @@ public class UserModel extends BaseEntity implements UserDetails {
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
         return true;
     }
 
