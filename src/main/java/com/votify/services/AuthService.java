@@ -1,6 +1,6 @@
 package com.votify.services;
 
-import com.votify.dtos.AuthenticationDto;
+import com.votify.dtos.requests.AuthenticationRequestDTO;
 import com.votify.exceptions.InvalidCredentialsException;
 import com.votify.exceptions.InvalidResetCodeException;
 import com.votify.exceptions.UserNotFoundException;
@@ -12,7 +12,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class AuthService implements UserDetailsService {
@@ -32,12 +31,12 @@ public class AuthService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UserNotFoundException {
         return userService.loadUserByLogin(username);
     }
-    public String login(AuthenticationDto loginDTO) {
+    public String login(AuthenticationRequestDTO loginDTO) {
         validateLogin(loginDTO);
         return tokenService.createToken(loginDTO);
     }
 
-    private void validateLogin(AuthenticationDto loginDTO) {
+    private void validateLogin(AuthenticationRequestDTO loginDTO) {
         if (loginDTO.email() == null || loginDTO.password() == null) {
             throw new InvalidCredentialsException("Email and password are required");
         } else if (!loginDTO.email().matches("^[^@]+@[^@]+$")) {

@@ -1,8 +1,8 @@
 package com.votify.controllers;
 
-import com.votify.dtos.AuthenticationDto;
-import com.votify.dtos.ResetPasswordDTO;
-import com.votify.dtos.UserEmailDto;
+import com.votify.dtos.requests.AuthenticationRequestDTO;
+import com.votify.dtos.requests.ResetPasswordRequestDTO;
+import com.votify.dtos.requests.UserEmailRequestDTO;
 import com.votify.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -59,8 +59,8 @@ public class AuthController {
             )
     })
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@RequestBody @Valid AuthenticationDto authenticationDto) {
-        String token = authService.login(authenticationDto);
+    public ResponseEntity<Void> login(@RequestBody @Valid AuthenticationRequestDTO authenticationRequestDTO) {
+        String token = authService.login(authenticationRequestDTO);
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + token)
                 .build();
@@ -69,12 +69,12 @@ public class AuthController {
 
             @ApiResponse(responseCode = "200", description = "Email sent successfully"),
             @ApiResponse(responseCode = "400", description = "Incorrect data submission", content = @Content(mediaType = "application/json", examples = {
-                    @ExampleObject(name = "Invalid email", value = "{\"errors\": [\"E-mail is mandatory\", \"Invalid email format\"]}"),
+                    @ExampleObject(name = "Invalid email", value = "{\"errors\": [\"Email cannot be blank\", \"Invalid email format\"]}"),
             }))
     })
     @PostMapping("/forgot-password")
-    public ResponseEntity<Void> forgotPassword(@RequestBody @Valid UserEmailDto userEmailDto) {
-        authService.forgotPassword(userEmailDto.email());
+    public ResponseEntity<Void> forgotPassword(@RequestBody @Valid UserEmailRequestDTO userEmailRequestDTO) {
+        authService.forgotPassword(userEmailRequestDTO.email());
         return ResponseEntity.ok().build();
 
     }
@@ -92,12 +92,12 @@ public class AuthController {
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"User not found\"}"))),
     })
     @PostMapping("/reset-password")
-    public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordDTO resetPasswordDto) {
+    public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordRequestDTO resetPasswordRequestDto) {
         authService.resetPassword(
-                resetPasswordDto.email(),
-                resetPasswordDto.code(),
-                resetPasswordDto.password(),
-                resetPasswordDto.confirmPassword()
+                resetPasswordRequestDto.email(),
+                resetPasswordRequestDto.code(),
+                resetPasswordRequestDto.password(),
+                resetPasswordRequestDto.confirmPassword()
         );
         return ResponseEntity.ok().build();
     }

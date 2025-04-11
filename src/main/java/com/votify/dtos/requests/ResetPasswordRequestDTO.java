@@ -1,10 +1,10 @@
-package com.votify.dtos;
+package com.votify.dtos.requests;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record ResetPasswordDTO(
+public record ResetPasswordRequestDTO(
         @NotBlank(message = "Email is required")
         @Email(message = "Invalid email format")
         String email,
