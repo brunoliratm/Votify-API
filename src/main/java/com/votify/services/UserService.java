@@ -43,6 +43,8 @@ public class UserService {
         userModel.setSurname(userRequestDto.surname());
         userModel.setEmail(userRequestDto.email());
 
+        String encryptedPassword = new BCryptPasswordEncoder().encode(userRequestDto.password());
+        userModel.setPassword(encryptedPassword);
 
         if (userRequestDto.role() != null && !userRequestDto.role().isEmpty()) {
             try {
