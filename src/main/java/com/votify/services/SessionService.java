@@ -8,7 +8,6 @@ import com.votify.dtos.requests.SessionRequestDto;
 import com.votify.dtos.responses.SessionResponseDto;
 import com.votify.dtos.responses.SessionUserDto;
 import com.votify.enums.SortSession;
-import com.votify.enums.UserRole;
 import com.votify.exceptions.*;
 import com.votify.helpers.UtilHelper;
 import com.votify.interfaces.SessionDateInterval;
@@ -16,7 +15,6 @@ import com.votify.models.AgendaModel;
 import com.votify.models.SessionModel;
 import com.votify.models.UserModel;
 import com.votify.repositories.SessionRepository;
-import com.votify.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,20 +32,20 @@ import java.util.stream.Collectors;
 @Service
 public class SessionService {
     private final SessionRepository sessionRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final UtilHelper utilHelper;
     private final AgendaService agendaService;
 
     public SessionService(
         SessionRepository sessionRepository,
-        UserRepository userRepository,
         UtilHelper utilHelper,
-        AgendaService agendaService
+        AgendaService agendaService,
+        UserService userService
     ) {
         this.sessionRepository = sessionRepository;
-        this.userRepository = userRepository;
         this.utilHelper = utilHelper;
         this.agendaService = agendaService;
+        this.userService = userService;
     }
 
     @Transactional
@@ -58,8 +56,7 @@ public class SessionService {
             ? sessionRequestDto.startDate()
             : LocalDateTime.now();
 
-        UserModel organizer = userRepository.findByIdAndRole(sessionRequestDto.organizerId(), UserRole.ORGANIZER)
-            .orElseThrow(UserNotFoundException::new);
+        UserModel organizer = userService.findOrganizer(sessionRequestDto.organizerId());
 
         SessionModel session = new SessionModel();
         session.setTitle(sessionRequestDto.title());
