@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.votify.dtos.responses.UserResponseDTO;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.votify.exceptions.ConflictException;
 import com.votify.exceptions.UserNotFoundException;
@@ -41,7 +42,9 @@ public class UserService {
         userModel.setName(userRequestDto.name());
         userModel.setSurname(userRequestDto.surname());
         userModel.setEmail(userRequestDto.email());
-        userModel.setPassword(new BCryptPasswordEncoder().encode(userRequestDto.password()));
+
+        String encryptedPassword = new BCryptPasswordEncoder().encode(userRequestDto.password());
+        userModel.setPassword(encryptedPassword);
 
         if (userRequestDto.role() != null && !userRequestDto.role().isEmpty()) {
             try {
@@ -204,4 +207,10 @@ public class UserService {
         if (!user.getAuthorities().contains(new SimpleGrantedAuthority("ORGANIZER"))) throw new UserNotFoundException();
         return user;
     }
+
+    @Transactional
+    public void updateUser(UserModel user) {
+        userRepository.save(user);
+    }
+
 }

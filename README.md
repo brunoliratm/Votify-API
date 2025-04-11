@@ -79,6 +79,8 @@ java -jar target/votify-0.0.1-SNAPSHOT.jar
 
 ### Authentication
 - `POST /api/v1/auth/login` - Login user
+- `POST /api/v1/auth/forgot-password` - User forgot password
+- `POST /api/v1/auth/reset-password` - User changes password
 
 ## 🛠️ Technologies
 - Java 21

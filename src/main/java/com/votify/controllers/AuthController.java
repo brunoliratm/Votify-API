@@ -1,6 +1,8 @@
 package com.votify.controllers;
 
-import com.votify.dtos.AuthenticationDto;
+import com.votify.dtos.requests.AuthenticationRequestDTO;
+import com.votify.dtos.requests.ResetPasswordRequestDTO;
+import com.votify.dtos.requests.UserEmailRequestDTO;
 import com.votify.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,14 +13,12 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/v1/auth")
 public class AuthController {
-
     private final AuthService authService;
 
     public AuthController(AuthService authService) {
@@ -59,11 +59,46 @@ public class AuthController {
             )
     })
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@RequestBody @Valid AuthenticationDto authenticationDto) {
-        String token = authService.login(authenticationDto);
+    public ResponseEntity<Void> login(@RequestBody @Valid AuthenticationRequestDTO authenticationRequestDTO) {
+        String token = authService.login(authenticationRequestDTO);
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + token)
                 .build();
     }
+    @Operation(summary = "Forgot password", description = "Send an email with a code to reset the password", responses = {
 
+            @ApiResponse(responseCode = "200", description = "Email sent successfully"),
+            @ApiResponse(responseCode = "400", description = "Incorrect data submission", content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "Invalid email", value = "{\"errors\": [\"Email cannot be blank\", \"Invalid email format\"]}"),
+            }))
+    })
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@RequestBody @Valid UserEmailRequestDTO userEmailRequestDTO) {
+        authService.forgotPassword(userEmailRequestDTO.email());
+        return ResponseEntity.ok().build();
+
+    }
+
+    @Operation(summary = "Reset password", description = "Reset the user's password", responses = {
+            @ApiResponse(responseCode = "200", description = "Password reset successfully"),
+            @ApiResponse(responseCode = "400", description = "Incorrect data submission", content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "Invalid code", value = "{\"errors\": [\"code: The code is mandatory\", \"code: The code must be 6 characters long\"]}"),
+                    @ExampleObject(name = "Invalid password", value = "{\"errors\": [\"Password is mandatory\", \"Password must be at least 6 characters long\"]}"),
+                    @ExampleObject(name = "Passwords don't match", value = "{\"errors\": [\"Passwords do not match.\"]}"),
+                    @ExampleObject(name = "Code expired", value = "{\"message\": \"Expired code\"}"),
+
+            })),
+            @ApiResponse(responseCode = "403", description = "User inactive", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Inactive user\"}"))),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"User not found\"}"))),
+    })
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordRequestDTO resetPasswordRequestDto) {
+        authService.resetPassword(
+                resetPasswordRequestDto.email(),
+                resetPasswordRequestDto.code(),
+                resetPasswordRequestDto.password(),
+                resetPasswordRequestDto.confirmPassword()
+        );
+        return ResponseEntity.ok().build();
+    }
 }

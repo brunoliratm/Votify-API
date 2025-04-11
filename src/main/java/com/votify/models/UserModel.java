@@ -9,7 +9,7 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -39,6 +39,12 @@ public class UserModel extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @Column(name = "reset_password_code", length = 6)
+    private String resetPasswordCode;
+
+    @Column(name = "reset_password_expiration")
+    private LocalDateTime resetPasswordExpirationCode;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (role == UserRole.ADMIN) {
@@ -58,21 +64,7 @@ public class UserModel extends BaseEntity implements UserDetails {
     @Override
     public boolean isAccountNonExpired() {
         return true;
-    }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 
     @Override
