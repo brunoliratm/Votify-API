@@ -71,6 +71,7 @@ public class UserService {
 
         if (name != null && !name.isEmpty() && roleValue != null && !roleValue.isEmpty()) {
             try {
+              
                 UserRole userRole = UserRole.valueOf(roleValue.toUpperCase());
                 userPage = userRepository.findByDeletedAtIsNullAndNameContainingIgnoreCaseAndRole(name, userRole, pageable);
             } catch (IllegalArgumentException e) {
@@ -81,6 +82,7 @@ public class UserService {
         } else if (role != null && !roleValue.isEmpty()) {
             try {
                 UserRole userRole = UserRole.valueOf(roleValue.toUpperCase());
+
                 userPage = userRepository.findByDeletedAtIsNullAndRole(userRole, pageable);
             } catch (IllegalArgumentException e) {
                 userPage = userRepository.findByDeletedAtIsNull(pageable);
@@ -116,7 +118,7 @@ public class UserService {
     private void validateFieldsWithCheckEmail(UserRequestDTO userRequestDto, BindingResult bindingResult) {
         Optional<UserModel> checkEmailExists = userRepository.findByEmail(userRequestDto.email());
 
-        if (checkEmailExists.isPresent())
+        if (checkEmailExists.isPresent() )
             throw new ConflictException("Email already exists");
 
         if (bindingResult.hasErrors()) {
