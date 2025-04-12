@@ -111,7 +111,8 @@ public class AgendaService {
             agenda.getVotes().stream()
                 .map(vote -> new VoteResponseDto(
                     vote.getId(),
-                    vote.getAssociateId(),
+                    vote.getAssociateId().getId(),
+                    vote.getAssociateId().getName(),
                     vote.getVoteType().toString(),
                     vote.getVotedAt()
                 )).collect(Collectors.toList())
@@ -193,6 +194,10 @@ public class AgendaService {
         );
     }
 
+    public AgendaModel getAgendaByIdActive(Long id) {
+        return this.agendaRepository.findByIdActive(id)
+                .orElseThrow(AgendaNotFoundException::new);
+    }
 }
 
 

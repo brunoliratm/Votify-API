@@ -103,7 +103,7 @@ public class AgendaController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<AgendaUniqueResponseDto> getById(@PathVariable Long id) {
-        AgendaUniqueResponseDto response = agendaService.findById(id);
+        AgendaUniqueResponseDto response = this.agendaService.findById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -142,7 +142,7 @@ public class AgendaController {
             @RequestBody @Valid AgendaRequestPutDto agendaRequestPutDto,
             BindingResult bindingResult
     ) {
-        agendaService.update(id, agendaRequestPutDto, bindingResult);
+        this.agendaService.update(id, agendaRequestPutDto, bindingResult);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -171,7 +171,7 @@ public class AgendaController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        agendaService.delete(id);
+        this.agendaService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -180,7 +180,7 @@ public class AgendaController {
     @PostMapping("/{id}/start-voting")
     public ResponseEntity<Void> startVoting(@PathVariable Long id, 
             @RequestParam(required = false) Integer durationMinutes) {
-        agendaService.startVoting(id, durationMinutes);
+        this.agendaService.startVoting(id, durationMinutes);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -19,12 +19,9 @@ public class AgendaCron {
     public void closeExpiredVotingSessions() {
         LocalDateTime now = LocalDateTime.now();
         List<AgendaModel> openAgendas = agendaRepository.findByStatusAndEndVotingAtBefore(
-                AgendaStatus.OPEN, now);
+            AgendaStatus.OPEN, now);
         
-        for (AgendaModel agenda : openAgendas) {
-            agenda.setStatus(AgendaStatus.CLOSED);
-            agendaRepository.save(agenda);
-        }
+        agendaRepository.saveAll(openAgendas);
     }
 
 }

@@ -21,7 +21,7 @@ public class VoteModel {
     private Long id;
 
     @Column(name = "associate_id", nullable = false)
-    private Long associateId;
+    private UserModel associateId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agenda_id", nullable = false)

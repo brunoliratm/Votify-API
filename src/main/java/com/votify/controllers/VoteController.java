@@ -28,11 +28,10 @@ public class VoteController {
             @ApiResponse(responseCode = "404", description = "Agenda not found."),
             @ApiResponse(responseCode = "500", description = "Internal server error.")
     })
-    @ApiResponse(responseCode = "201", description = "Vote registered successfully.")
-    @RolesAllowed("ROLE_ASSOCIATE")
+    @RolesAllowed("ASSOCIATE")
     @PostMapping
     public ResponseEntity<Void> registerVote(@RequestBody @Valid VoteRequestDto voteRequestDto) {
-        voteService.registerVote(voteRequestDto);
+        this.voteService.registerVote(voteRequestDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
