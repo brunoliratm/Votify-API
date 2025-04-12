@@ -33,9 +33,11 @@ public class AdminSeeder implements CommandLineRunner {
             "ADMIN"
         );
 
-        BindingResult bindingResult = new BeanPropertyBindingResult(adminDto, "userRequestDto");
-        userService.createUser(adminDto, bindingResult);
+        if (userService.getUserByEmail(adminDto.email()) == null) {
+            BindingResult bindingResult = new BeanPropertyBindingResult(adminDto, "userRequestDto");
+            userService.createUser(adminDto, bindingResult);
 
-        log.info("ADMIN user create successfully!");
+            log.info("ADMIN user create successfully!");
+        }
     }
 }
