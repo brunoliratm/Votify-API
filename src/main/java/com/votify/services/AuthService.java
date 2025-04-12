@@ -42,10 +42,14 @@ public class AuthService implements UserDetailsService {
         } else if (!loginDTO.email().matches("^[^@]+@[^@]+$")) {
             throw new InvalidCredentialsException("Email format is incorrect");
         }
-        UserModel user = userService.loadUserByLogin(loginDTO.email());
 
-        if (user == null)
-            throw new UserNotFoundException();
+        UserModel user;
+
+        try {
+            user = userService.loadUserByLogin(loginDTO.email());
+        } catch (UserNotFoundException e) {
+            throw new InvalidCredentialsException("Email or password does not match");
+        }
 
         if (!new BCryptPasswordEncoder().matches(loginDTO.password(), user.getPassword())) {
             throw new InvalidCredentialsException("Email or password does not match");
