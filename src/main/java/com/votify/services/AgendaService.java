@@ -92,11 +92,14 @@ public class AgendaService {
     }
 
     private AgendaUniqueResponseDto convertAgendaUniqueToDto(AgendaModel agenda) {
+        Long approvals = voteRepository.countVotesByType(agenda.getId(), VoteOption.YES);
+        Long disapprovals = voteRepository.countVotesByType(agenda.getId(), VoteOption.NO);
+        Long totalVotes = approvals + disapprovals;
+        
         infoVotesResponseDto infoVotes = new infoVotesResponseDto(
-            voteRepository.countVotesByType(agenda.getId(), VoteOption.YES) +
-            voteRepository.countVotesByType(agenda.getId(), VoteOption.NO),
-            voteRepository.countVotesByType(agenda.getId(), VoteOption.YES),
-            voteRepository.countVotesByType(agenda.getId(), VoteOption.NO)
+            totalVotes,
+            approvals,
+            disapprovals
         );
 
         return new AgendaUniqueResponseDto(
@@ -175,11 +178,14 @@ public class AgendaService {
     }
 
     public AgendaResponseDto convertAgendaToDto(AgendaModel agendaModel) {
+        Long approvals= voteRepository.countVotesByType(agendaModel.getId(), VoteOption.YES);
+        Long disapprovals= voteRepository.countVotesByType(agendaModel.getId(), VoteOption.NO);
+        Long totalVotes = approvals + disapprovals;
+
         infoVotesResponseDto infoVotes = new infoVotesResponseDto(
-            voteRepository.countVotesByType(agendaModel.getId(), VoteOption.YES) +
-            voteRepository.countVotesByType(agendaModel.getId(), VoteOption.NO),
-            voteRepository.countVotesByType(agendaModel.getId(), VoteOption.YES),
-            voteRepository.countVotesByType(agendaModel.getId(), VoteOption.NO)
+            totalVotes,
+            approvals,
+            disapprovals
         );
         
         return new AgendaResponseDto(
