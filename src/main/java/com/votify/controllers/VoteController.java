@@ -32,7 +32,7 @@ public class VoteController {
     @RolesAllowed("ROLE_ASSOCIATE")
     @PostMapping
     public ResponseEntity<Void> registerVote(@RequestBody @Valid VoteRequestDto voteRequestDto) {
-        voteService.registerVote(voteRequestDto.agendaId(), voteRequestDto.voteOption());
+        voteService.registerVote(voteRequestDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

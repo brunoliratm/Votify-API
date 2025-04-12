@@ -1,5 +1,6 @@
 package com.votify.services;
 
+import com.votify.dtos.requests.VoteRequestDto;
 import com.votify.enums.AgendaStatus;
 import com.votify.enums.VoteOption;
 import com.votify.exceptions.AgendaNotFoundException;
@@ -27,9 +28,12 @@ public class VoteService {
     }
 
     @Transactional
-    public void registerVote(Long agendaId, VoteOption voteOption) {
+    public void registerVote(VoteRequestDto voteRequestDto) {
+        Long agendaId = voteRequestDto.agendaId();
+        VoteOption voteOption = voteRequestDto.voteOption();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserModel currentUser = (UserModel) authentication.getPrincipal();
+
         Long associateId = currentUser.getId();
         AgendaModel agenda = agendaRepository.findById(agendaId)
                 .orElseThrow(() -> new AgendaNotFoundException());
