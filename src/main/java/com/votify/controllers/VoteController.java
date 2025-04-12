@@ -1,11 +1,11 @@
 package com.votify.controllers;
 
-import com.votify.enums.VoteOption;
+import com.votify.dtos.requests.VoteRequestDto;
 import com.votify.services.VoteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,13 +20,19 @@ public class VoteController {
         this.voteService = voteService;
     }
 
-    @Operation(summary = "Register a vote", description = "Allows the currently logged-in associate to vote on an agenda.")
+    @Operation(summary = "Register a vote", description = "Allows the currently logged-in associate to vote on an agenda.", responses = {
+            @ApiResponse(responseCode = "201", description = "Vote registered successfully."),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters."),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access."),
+            @ApiResponse(responseCode = "403", description = "Access denied."),
+            @ApiResponse(responseCode = "404", description = "Agenda not found."),
+            @ApiResponse(responseCode = "500", description = "Internal server error.")
+    })
     @ApiResponse(responseCode = "201", description = "Vote registered successfully.")
     @RolesAllowed("ROLE_ASSOCIATE")
     @PostMapping
-    public ResponseEntity<Void> registerVote(@RequestParam @NotNull Long agendaId,
-                                             @RequestParam @NotNull VoteOption voteOption) {
-        voteService.registerVote(agendaId, voteOption);
+    public ResponseEntity<Void> registerVote(@RequestBody @Valid VoteRequestDto voteRequestDto) {
+        voteService.registerVote(voteRequestDto.agendaId(), voteRequestDto.voteOption());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

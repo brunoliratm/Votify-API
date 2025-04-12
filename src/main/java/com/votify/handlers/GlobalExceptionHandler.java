@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import com.votify.exceptions.ConflictException;
-import com.votify.exceptions.UserNotFoundException;
-import com.votify.exceptions.ValidationErrorException;
 import com.votify.models.CustomErrorResponse;
 
 import java.time.LocalDateTime;
@@ -177,4 +174,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new CustomErrorResponse("An unknown error occurred"),
             HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(VotingException.class)
+    public ResponseEntity<CustomErrorResponse> handleVotingException(VotingException ex) {
+        return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
 }
