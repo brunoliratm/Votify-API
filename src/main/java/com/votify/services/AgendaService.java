@@ -27,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -192,4 +193,19 @@ public class AgendaService {
                 infoVotes
         );
     }
+
+    @Scheduled(fixedRate = 60000) 
+    @Transactional
+    public void closeExpiredVotingSessions() {
+        LocalDateTime now = LocalDateTime.now();
+        List<AgendaModel> openAgendas = agendaRepository.findByStatusAndEndVotingAtBefore(
+                AgendaStatus.OPEN, now);
+        
+        for (AgendaModel agenda : openAgendas) {
+            agenda.setStatus(AgendaStatus.CLOSED);
+            agendaRepository.save(agenda);
+        }
+    }
 }
+
+
