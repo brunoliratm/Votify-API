@@ -5,7 +5,6 @@ import com.votify.exceptions.InvalidCredentialsException;
 import com.votify.exceptions.InvalidResetCodeException;
 import com.votify.exceptions.UserNotFoundException;
 import com.votify.models.UserModel;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,7 +19,6 @@ public class AuthService implements UserDetailsService {
     private final UserService userService;
     private final EmailService emailService;
 
-    @Autowired
     public AuthService(UserService userService, TokenService tokenService, EmailService emailService) {
         this.userService = userService;
         this.tokenService = tokenService;

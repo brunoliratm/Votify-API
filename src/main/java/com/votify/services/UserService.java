@@ -3,7 +3,6 @@ package com.votify.services;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import com.votify.dtos.responses.UserResponseDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
