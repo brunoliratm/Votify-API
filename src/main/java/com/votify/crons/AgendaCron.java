@@ -8,10 +8,10 @@ import com.votify.models.AgendaModel;
 import com.votify.repositories.AgendaRepository;
 import jakarta.transaction.Transactional;
 
-public class VoteCron {
+public class AgendaCron {
     private final AgendaRepository agendaRepository;
 
-    public VoteCron(AgendaRepository agendaRepository) {
+    public AgendaCron(AgendaRepository agendaRepository) {
         this.agendaRepository = agendaRepository;
     }
     @Scheduled(fixedRate = 60000) 
