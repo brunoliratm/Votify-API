@@ -3,6 +3,7 @@ package com.votify.controllers;
 import com.votify.dtos.requests.AgendaRequestDto;
 import com.votify.dtos.requests.AgendaRequestPutDto;
 import com.votify.dtos.responses.AgendaResponseDto;
+import com.votify.dtos.responses.AgendaUniqueResponseDto;
 import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.enums.SortAgenda;
 import com.votify.services.AgendaService;
@@ -101,8 +102,8 @@ public class AgendaController {
         )
     })
     @GetMapping("/{id}")
-    public ResponseEntity<AgendaResponseDto> getById(@PathVariable Long id) {
-        AgendaResponseDto response = this.agendaService.findById(id);
+    public ResponseEntity<AgendaUniqueResponseDto> getById(@PathVariable Long id) {
+        AgendaUniqueResponseDto response = agendaService.findById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -141,7 +142,7 @@ public class AgendaController {
             @RequestBody @Valid AgendaRequestPutDto agendaRequestPutDto,
             BindingResult bindingResult
     ) {
-        this.agendaService.update(id, agendaRequestPutDto, bindingResult);
+        agendaService.update(id, agendaRequestPutDto, bindingResult);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -170,8 +171,17 @@ public class AgendaController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        this.agendaService.delete(id);
+        agendaService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Operation(summary = "Start voting for an agenda", description = "Start the voting process for a specific agenda.")
+    @ApiResponse(responseCode = "200", description = "Voting started successfully.")
+    @PostMapping("/{id}/start-voting")
+    public ResponseEntity<Void> startVoting(@PathVariable Long id, 
+            @RequestParam(required = false) Integer durationMinutes) {
+        agendaService.startVoting(id, durationMinutes);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
 

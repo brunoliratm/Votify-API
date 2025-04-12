@@ -4,17 +4,24 @@ import com.votify.dtos.*;
 import com.votify.dtos.requests.AgendaRequestDto;
 import com.votify.dtos.requests.AgendaRequestPutDto;
 import com.votify.dtos.responses.AgendaResponseDto;
+import com.votify.dtos.responses.AgendaUniqueResponseDto;
 import com.votify.dtos.responses.ApiResponseDto;
+import com.votify.dtos.responses.VoteResponseDto;
+import com.votify.dtos.responses.infoVotesResponseDto;
+import com.votify.enums.AgendaStatus;
 import com.votify.enums.SortAgenda;
+import com.votify.enums.VoteOption;
 import com.votify.exceptions.AgendaNotFoundException;
 import com.votify.exceptions.PageNotFoundException;
 import com.votify.exceptions.SessionNotFoundException;
 import com.votify.exceptions.ValidationErrorException;
+import com.votify.exceptions.VotingException;
 import com.votify.helpers.UtilHelper;
 import com.votify.models.AgendaModel;
 import com.votify.models.SessionModel;
 import com.votify.repositories.AgendaRepository;
 import com.votify.repositories.SessionRepository;
+import com.votify.repositories.VoteRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +30,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,14 +39,17 @@ public class AgendaService {
     private final AgendaRepository agendaRepository;
     private final UtilHelper utilHelper;
     private final SessionRepository sessionRepository;
+    private final VoteRepository voteRepository;
 
     public AgendaService(AgendaRepository agendaRepository,
                          UtilHelper utilHelper,
-                         SessionRepository sessionRepository
+                         SessionRepository sessionRepository,
+                         VoteRepository voteRepository
     ) {
         this.agendaRepository = agendaRepository;
         this.utilHelper = utilHelper;
         this.sessionRepository = sessionRepository;
+        this.voteRepository = voteRepository;
     }
 
     @Transactional
@@ -76,9 +86,36 @@ public class AgendaService {
                 .orElseThrow(AgendaNotFoundException::new);
     }
 
-    public AgendaResponseDto findById(Long id) {
+    public AgendaUniqueResponseDto findById(Long id) {
         AgendaModel agenda = this.getAgendaById(id);
-        return convertAgendaToDto(agenda);
+        return convertAgendaUniqueToDto(agenda);
+    }
+
+    private AgendaUniqueResponseDto convertAgendaUniqueToDto(AgendaModel agenda) {
+        infoVotesResponseDto infoVotes = new infoVotesResponseDto(
+            voteRepository.countVotesByType(agenda.getId(), VoteOption.YES) +
+            voteRepository.countVotesByType(agenda.getId(), VoteOption.NO),
+            voteRepository.countVotesByType(agenda.getId(), VoteOption.YES),
+            voteRepository.countVotesByType(agenda.getId(), VoteOption.NO)
+        );
+
+        return new AgendaUniqueResponseDto(
+            agenda.getId(),
+            agenda.getTitle(),
+            agenda.getDescription(),
+            agenda.getSession().getId(),
+            agenda.getStatus().toString(),
+            agenda.getStartVotingAt(),
+            agenda.getEndVotingAt(),
+            infoVotes,
+            agenda.getVotes().stream()
+                .map(vote -> new VoteResponseDto(
+                    vote.getId(),
+                    vote.getAssociateId(),
+                    vote.getVoteType().toString(),
+                    vote.getVotedAt()
+                )).collect(Collectors.toList())
+        );
     }
 
     @Transactional
@@ -109,6 +146,24 @@ public class AgendaService {
         this.agendaRepository.save(agenda);
     }
 
+    public void startVoting(Long id, Integer durationMinutes){
+        AgendaModel agenda = agendaRepository.findById(id)
+                .orElseThrow(() -> new AgendaNotFoundException());
+
+        if (agenda.getStatus() == AgendaStatus.OPEN) {
+            throw new VotingException("Voting is already open for this agenda");
+        }
+
+        if (agenda.getStatus() == AgendaStatus.CLOSED) {
+            throw new VotingException("Voting is closed for this agenda");
+        }
+
+        agenda.setStatus(AgendaStatus.OPEN);
+        agenda.setStartVotingAt(LocalDateTime.now());
+        agenda.setEndVotingAt(LocalDateTime.now().plusMinutes(durationMinutes != null ? durationMinutes : 30));
+        agendaRepository.save(agenda);
+    }
+
     private void validateErrorFields(BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getFieldErrors().stream()
@@ -119,11 +174,22 @@ public class AgendaService {
     }
 
     public AgendaResponseDto convertAgendaToDto(AgendaModel agendaModel) {
+        infoVotesResponseDto infoVotes = new infoVotesResponseDto(
+            voteRepository.countVotesByType(agendaModel.getId(), VoteOption.YES) +
+            voteRepository.countVotesByType(agendaModel.getId(), VoteOption.NO),
+            voteRepository.countVotesByType(agendaModel.getId(), VoteOption.YES),
+            voteRepository.countVotesByType(agendaModel.getId(), VoteOption.NO)
+        );
+        
         return new AgendaResponseDto(
                 agendaModel.getId(),
                 agendaModel.getTitle(),
                 agendaModel.getDescription(),
-                agendaModel.getVotes()
+                agendaModel.getSession().getId(),
+                agendaModel.getStatus().toString(),
+                agendaModel.getStartVotingAt(),
+                agendaModel.getEndVotingAt(),
+                infoVotes
         );
     }
 }

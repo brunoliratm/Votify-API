@@ -1,12 +1,14 @@
 package com.votify.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.votify.enums.AgendaStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -32,4 +34,14 @@ public class AgendaModel extends BaseEntity {
 
     @OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL)
     private List<VoteModel> votes;
+
+    @Column(name = "start_voting_at")
+    private LocalDateTime startVotingAt;
+
+    @Column(name = "end_voting_at")
+    private LocalDateTime endVotingAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private AgendaStatus status;
 }
