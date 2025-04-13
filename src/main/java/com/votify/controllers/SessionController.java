@@ -18,7 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/${api.version}/sessions")
+@RequestMapping("api/${api.version}/sessions")
 public class SessionController {
     private final SessionFacade sessionFacade;
 

@@ -19,7 +19,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/${api.version}/agendas")
+@RequestMapping("api/${api.version}/agendas")
 public class AgendaController {
     private final AgendaFacade agendaFacade;
 

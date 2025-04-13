@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/${api.version}/votes")
+@RequestMapping("api/${api.version}/votes")
 public class VoteController {
 
     private final VoteFacade voteFacade;

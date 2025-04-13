@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.votify.dtos.responses.ApiResponseDto;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("api/${api.version}/users")
 @Tag(name = "Users", description = "Endpoints for user management")
 public class UserController {
 
