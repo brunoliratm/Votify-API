@@ -2,6 +2,7 @@ package com.votify.services;
 
 import com.votify.dtos.requests.VoteRequestDto;
 import com.votify.enums.AgendaStatus;
+import com.votify.enums.UserRole;
 import com.votify.enums.VoteOption;
 import com.votify.exceptions.VotingException;
 import com.votify.models.AgendaModel;
@@ -34,9 +35,9 @@ public class VoteService {
 
         AgendaModel agenda = this.agendaService.getAgendaByIdActive(agendaId);
 
-        if (agenda.getStatus() != AgendaStatus.OPEN || 
-            LocalDateTime.now().isBefore(agenda.getStartVotingAt()) || 
-            LocalDateTime.now().isAfter(agenda.getEndVotingAt())) {
+        if (agenda.getStatus() != AgendaStatus.OPEN
+                || LocalDateTime.now().isBefore(agenda.getStartVotingAt())
+                || LocalDateTime.now().isAfter(agenda.getEndVotingAt())) {
             throw new VotingException("Voting is not allowed for this agenda at this time");
         }
 
@@ -44,11 +45,15 @@ public class VoteService {
             throw new VotingException("Associate has already voted on this agenda");
         }
 
+        if (!currentUser.getRole().equals(UserRole.ASSOCIATE)) {
+            throw new VotingException("Only associates can vote");
+        }
+
         VoteModel vote = new VoteModel();
         vote.setAssociateId(currentUser);
         vote.setAgenda(agenda);
         vote.setVoteType(voteOption);
-        vote.setVotedAt(LocalDateTime.now()); 
+        vote.setVotedAt(LocalDateTime.now());
 
         this.voteRepository.save(vote);
     }
