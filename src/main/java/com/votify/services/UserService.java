@@ -180,7 +180,7 @@ public class UserService {
         }
 
         if (isValidField(userRequestDto.password())) {
-            user.setPassword(userRequestDto.password());
+            user.setPassword(new BCryptPasswordEncoder().encode(userRequestDto.password()));
         }
 
         if (isValidField(userRequestDto.role())) {
