@@ -29,6 +29,7 @@ public class AuthService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UserNotFoundException {
         return userService.loadUserByLogin(username);
     }
+
     public String login(AuthenticationRequestDTO loginDTO) {
         validateLogin(loginDTO);
         return tokenService.createToken(loginDTO);

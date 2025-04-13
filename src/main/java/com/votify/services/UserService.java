@@ -72,7 +72,6 @@ public class UserService {
 
         if (name != null && !name.isEmpty() && roleValue != null && !roleValue.isEmpty()) {
             try {
-              
                 UserRole userRole = UserRole.valueOf(roleValue.toUpperCase());
                 userPage = userRepository.findByDeletedAtIsNullAndNameContainingIgnoreCaseAndRole(name, userRole, pageable);
             } catch (IllegalArgumentException e) {
@@ -112,7 +111,7 @@ public class UserService {
     }
 
     private UserResponseDTO convertToDTO(UserModel userModel) {
-        return new UserResponseDTO(userModel.getName(), userModel.getSurname(), userModel.getEmail(),
+        return new UserResponseDTO(userModel.getId(), userModel.getName(), userModel.getSurname(), userModel.getEmail(),
                 userModel.getRole() != null ? userModel.getRole().toString() : null);
     }
 
