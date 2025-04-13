@@ -1,6 +1,7 @@
 package com.votify.controllers;
 
-import com.votify.dtos.requests.UserRequestDTO;
+import com.votify.dtos.requests.UserPutRequestDto;
+import com.votify.dtos.requests.UserRequestDto;
 import com.votify.dtos.responses.UserResponseDTO;
 import com.votify.enums.UserRole;
 import com.votify.facades.UserFacade;
@@ -73,7 +74,7 @@ public class UserController {
                                     examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")))
             })
     @PostMapping
-    public ResponseEntity<Void> createUser(@RequestBody @Valid UserRequestDTO userRequestDto,
+    public ResponseEntity<Void> createUser(@RequestBody @Valid UserRequestDto userRequestDto,
                                            BindingResult bindingResult) {
         userFacade.create(userRequestDto, bindingResult);
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -121,7 +122,7 @@ public class UserController {
             })
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateUser(@PathVariable Long id,
-                                           @RequestBody @Valid UserRequestDTO userRequestDto, BindingResult bindingResult) {
+                                           @RequestBody @Valid UserPutRequestDto userRequestDto, BindingResult bindingResult) {
         userFacade.update(id, userRequestDto, bindingResult);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

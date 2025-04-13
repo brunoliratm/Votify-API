@@ -1,7 +1,7 @@
 package com.votify.facades;
 
-import com.votify.dtos.requests.AuthenticationRequestDTO;
-import com.votify.dtos.requests.ResetPasswordRequestDTO;
+import com.votify.dtos.requests.AuthenticationRequestDto;
+import com.votify.dtos.requests.ResetPasswordRequestDto;
 import com.votify.services.AuthService;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,7 @@ public class AuthFacade {
         this.authService = authService;
     }
 
-    public String login(AuthenticationRequestDTO authenticationRequestDTO) {
+    public String login(AuthenticationRequestDto authenticationRequestDTO) {
         return this.authService.login(authenticationRequestDTO);
     }
 
@@ -21,7 +21,7 @@ public class AuthFacade {
         this.authService.forgotPassword(email);
     }
 
-    public void resetPassword(ResetPasswordRequestDTO resetPasswordRequestDto) {
+    public void resetPassword(ResetPasswordRequestDto resetPasswordRequestDto) {
         this.authService.resetPassword(
                 resetPasswordRequestDto.email(),
                 resetPasswordRequestDto.code(),

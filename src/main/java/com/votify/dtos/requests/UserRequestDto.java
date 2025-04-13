@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public record UserRequestDTO(
+public record UserRequestDto(
     @NotBlank(message = "{users.name.NotBlank}")
     @Size(min = 1, max = 100, message = "{users.name.Size}")
     String name,

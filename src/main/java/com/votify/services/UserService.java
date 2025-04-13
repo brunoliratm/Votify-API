@@ -5,12 +5,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import com.votify.dtos.responses.UserResponseDTO;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.votify.exceptions.ConflictException;
 import com.votify.exceptions.UserNotFoundException;
 import com.votify.exceptions.ValidationErrorException;
 import com.votify.dtos.responses.ApiResponseDto;
-import com.votify.dtos.requests.UserRequestDTO;
+import com.votify.dtos.requests.UserPutRequestDto;
+import com.votify.dtos.requests.UserRequestDto;
 import com.votify.enums.UserRole;
 import com.votify.models.UserModel;
 import com.votify.repositories.UserRepository;
@@ -28,13 +28,18 @@ import com.votify.helpers.UtilHelper;
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final UtilHelper utilHelper;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UtilHelper utilHelper;
+    public UserService(UserRepository userRepository, UtilHelper utilHelper) {
+        this.userRepository = userRepository;
+        this.utilHelper = utilHelper;
+        this.passwordEncoder = new BCryptPasswordEncoder();
+    }
 
-    public void createUser(UserRequestDTO userRequestDto, BindingResult bindingResult) {
+    @Transactional
+    public void createUser(UserRequestDto userRequestDto, BindingResult bindingResult) {
         validateFieldsWithCheckEmail(userRequestDto, bindingResult);
 
         UserModel userModel = new UserModel();
@@ -42,7 +47,7 @@ public class UserService {
         userModel.setSurname(userRequestDto.surname());
         userModel.setEmail(userRequestDto.email());
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(userRequestDto.password());
+        String encryptedPassword = passwordEncoder.encode(userRequestDto.password());
         userModel.setPassword(encryptedPassword);
 
         if (userRequestDto.role() != null && !userRequestDto.role().isEmpty()) {
@@ -58,46 +63,18 @@ public class UserService {
     }
 
     public ApiResponseDto<UserResponseDTO> getAllUsers(int page, String name, UserRole role) {
-        String roleValue;
-        if (role != null) {
-            roleValue = role.getRole();
-        } else {
-            roleValue = null;
-        }
-
         int pageIndex = (page > 0) ? (page - 1) : 0;
-
         Pageable pageable = PageRequest.of(pageIndex, 10);
-        Page<UserModel> userPage;
 
-        if (name != null && !name.isEmpty() && roleValue != null && !roleValue.isEmpty()) {
-            try {
-                UserRole userRole = UserRole.valueOf(roleValue.toUpperCase());
-                userPage = userRepository.findByDeletedAtIsNullAndNameContainingIgnoreCaseAndRole(name, userRole, pageable);
-            } catch (IllegalArgumentException e) {
-                userPage = userRepository.findByDeletedAtIsNullAndNameContainingIgnoreCase(name, pageable);
-            }
-        } else if (name != null && !name.isEmpty()) {
-            userPage = userRepository.findByDeletedAtIsNullAndNameContainingIgnoreCase(name, pageable);
-        } else if (role != null && !roleValue.isEmpty()) {
-            try {
-                UserRole userRole = UserRole.valueOf(roleValue.toUpperCase());
+        Page<UserModel> userPage = userRepository
+                .findByFilters((name != null && !name.isEmpty()) ? name : null, role, pageable);
 
-                userPage = userRepository.findByDeletedAtIsNullAndRole(userRole, pageable);
-            } catch (IllegalArgumentException e) {
-                userPage = userRepository.findByDeletedAtIsNull(pageable);
-            }
-        } else {
-            userPage = userRepository.findByDeletedAtIsNull(pageable);
-        }
-
-        List<UserResponseDTO> userRequestDtos = userPage.getContent().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        List<UserResponseDTO> userResponseDtos =
+                userPage.getContent().stream().map(this::convertToDTO).collect(Collectors.toList());
 
         InfoDto info = utilHelper.buildPageableInfoDto(userPage, "users");
 
-        return new ApiResponseDto<>(info, userRequestDtos);
+        return new ApiResponseDto<>(info, userResponseDtos);
     }
 
     public UserResponseDTO getUserById(Long id) {
@@ -111,14 +88,16 @@ public class UserService {
     }
 
     private UserResponseDTO convertToDTO(UserModel userModel) {
-        return new UserResponseDTO(userModel.getId(), userModel.getName(), userModel.getSurname(), userModel.getEmail(),
+        return new UserResponseDTO(userModel.getId(), userModel.getName(), userModel.getSurname(),
+                userModel.getEmail(),
                 userModel.getRole() != null ? userModel.getRole().toString() : null);
     }
 
-    private void validateFieldsWithCheckEmail(UserRequestDTO userRequestDto, BindingResult bindingResult) {
+    private void validateFieldsWithCheckEmail(UserRequestDto userRequestDto,
+            BindingResult bindingResult) {
         Optional<UserModel> checkEmailExists = userRepository.findByEmail(userRequestDto.email());
 
-        if (checkEmailExists.isPresent() )
+        if (checkEmailExists.isPresent())
             throw new ConflictException("Email already exists");
 
         if (bindingResult.hasErrors()) {
@@ -128,7 +107,8 @@ public class UserService {
         }
     }
 
-    private void validateUpdateUser(Long id, UserRequestDTO userRequestDto, BindingResult bindingResult) {
+    private void validateUpdateUser(Long id, UserPutRequestDto userRequestDto,
+            BindingResult bindingResult) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
         if (user.isDeleted()) {
@@ -143,7 +123,8 @@ public class UserService {
 
         if (userRequestDto.email() != null && !userRequestDto.email().isEmpty()
                 && !userRequestDto.email().equals(user.getEmail())) {
-            Optional<UserModel> existingUserWithEmail = userRepository.findByEmail(userRequestDto.email());
+            Optional<UserModel> existingUserWithEmail =
+                    userRepository.findByEmail(userRequestDto.email());
             if (existingUserWithEmail.isPresent()) {
                 throw new ConflictException("Email already exists");
             }
@@ -158,38 +139,38 @@ public class UserService {
         }
     }
 
-    private boolean isValidField(String field) {
-        return field != null && !field.isEmpty();
-    }
-
-    public void updateUser(Long id, UserRequestDTO userRequestDto, BindingResult bindingResult) {
-        validateUpdateUser(id, userRequestDto, bindingResult);
+    @Transactional
+    public void updateUser(Long id, UserPutRequestDto userPutRequestDto, BindingResult bindingResult) {
+        validateUpdateUser(id, userPutRequestDto, bindingResult);
 
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
-        if (isValidField(userRequestDto.email()) && !userRequestDto.email().equals(user.getEmail())) {
-            user.setEmail(userRequestDto.email());
+        if (userPutRequestDto.email() != null 
+                && !userPutRequestDto.email().isEmpty()
+                && !userPutRequestDto.email().equals(user.getEmail())) {
+                user.setEmail(userPutRequestDto.email());
         }
 
-        if (isValidField(userRequestDto.name())) {
-            user.setName(userRequestDto.name());
+        if (userPutRequestDto.name() != null && !userPutRequestDto.name().isEmpty()) {
+            user.setName(userPutRequestDto.name());
         }
 
-        if (isValidField(userRequestDto.surname())) {
-            user.setSurname(userRequestDto.surname());
+        if (userPutRequestDto.surname() != null && !userPutRequestDto.surname().isEmpty()) {
+            user.setSurname(userPutRequestDto.surname());
         }
 
-        if (isValidField(userRequestDto.password())) {
-            user.setPassword(new BCryptPasswordEncoder().encode(userRequestDto.password()));
+        if (userPutRequestDto.password() != null && !userPutRequestDto.password().isEmpty()) {
+            user.setPassword(new BCryptPasswordEncoder().encode(userPutRequestDto.password()));
         }
 
-        if (isValidField(userRequestDto.role())) {
-            user.setRole(UserRole.valueOf(userRequestDto.role().toUpperCase()));
+        if (userPutRequestDto.role() != null && !userPutRequestDto.role().isEmpty()) {
+            user.setRole(UserRole.valueOf(userPutRequestDto.role().toUpperCase()));
         }
 
         userRepository.save(user);
     }
 
+    @Transactional
     public void deleteUser(Long id) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         user.delete();
@@ -202,7 +183,8 @@ public class UserService {
 
     public UserModel findOrganizer(Long id) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        if (!user.getAuthorities().contains(new SimpleGrantedAuthority("ORGANIZER"))) throw new UserNotFoundException();
+        if (!user.getAuthorities().contains(new SimpleGrantedAuthority("ORGANIZER")))
+            throw new UserNotFoundException();
         return user;
     }
 
@@ -212,8 +194,10 @@ public class UserService {
     }
 
     public UserModel getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-            .orElse(null);
+        if (email == null || email.trim().isEmpty()) {
+            return null;
+        }
+        return userRepository.findByEmail(email).orElse(null);
     }
 
 }
