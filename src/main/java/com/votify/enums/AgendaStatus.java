@@ -2,5 +2,6 @@ package com.votify.enums;
 
 public enum AgendaStatus {
     OPEN,
-    CLOSED
+    CLOSED,
+    NOT_STARTED
 }

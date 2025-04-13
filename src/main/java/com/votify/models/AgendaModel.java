@@ -43,5 +43,5 @@ public class AgendaModel extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private AgendaStatus status = AgendaStatus.CLOSED; 
+    private AgendaStatus status= AgendaStatus.NOT_STARTED;
 }
