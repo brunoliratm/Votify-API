@@ -56,8 +56,12 @@ public class SessionService {
             ? sessionRequestDto.startDate()
             : LocalDateTime.now();
 
-        UserModel organizer = userService.findOrganizer(sessionRequestDto.organizerId());
-
+        UserModel organizer;
+        try {
+            organizer = userService.findOrganizer(sessionRequestDto.organizerId());
+        } catch (UserNotFoundException e) {
+            throw new UserNotFoundException("Organizer not found");
+        }
         SessionModel session = new SessionModel();
         session.setTitle(sessionRequestDto.title());
         session.setDescription(sessionRequestDto.description());
