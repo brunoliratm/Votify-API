@@ -1,5 +1,5 @@
 package com.votify.enums;
 
 public enum SortAgenda {
-    id, title, description, votes
+    id, title, description
 }
