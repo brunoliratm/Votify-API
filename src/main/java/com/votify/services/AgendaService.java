@@ -158,9 +158,12 @@ public class AgendaService {
             throw new VotingException("Voting is already open for this agenda");
         }
 
-        if (agenda.getStatus() == AgendaStatus.CLOSED) {
+        if (agenda.getStatus() == AgendaStatus.CLOSED || 
+            (agenda.getEndVotingAt() != null && agenda.getEndVotingAt().isBefore(LocalDateTime.now()))) {
             throw new VotingException("Voting is closed for this agenda");
         }
+
+        
 
         agenda.setStatus(AgendaStatus.OPEN);
         agenda.setStartVotingAt(LocalDateTime.now());
