@@ -3,6 +3,7 @@ package com.votify.controllers;
 import com.votify.dtos.requests.UserPutRequestDto;
 import com.votify.dtos.requests.UserRequestDto;
 import com.votify.dtos.responses.UserResponseDTO;
+import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.enums.UserRole;
 import com.votify.facades.UserFacade;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.votify.dtos.responses.ApiResponseDto;
+
 
 @RestController
 @RequestMapping("api/${api.version}/users")
@@ -71,7 +72,7 @@ public class UserController {
                                     examples = @ExampleObject(value = "{\"message\": \"Email already exists\"}"))),
                     @ApiResponse(responseCode = "500", description = "Internal server error",
                             content = @Content(mediaType = "application/json",
-                                    examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")))
+                                    examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred. Please contact support.\"}")))
             })
     @PostMapping
     public ResponseEntity<Void> createUser(@RequestBody @Valid UserRequestDto userRequestDto,
@@ -118,7 +119,7 @@ public class UserController {
                                     examples = @ExampleObject(value = "{\"message\": \"Email already exists\"}"))),
                     @ApiResponse(responseCode = "500", description = "Internal server error",
                             content = @Content(mediaType = "application/json",
-                                    examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")))
+                                    examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred. Please contact support.\"}")))
             })
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateUser(@PathVariable Long id,
@@ -132,18 +133,20 @@ public class UserController {
                     @ApiResponse(responseCode = "204", description = "User deleted"),
                     @ApiResponse(responseCode = "401", description = "Unauthorized access",
                             content = @Content(mediaType = "application/json",
-                                    examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
-                            )),
+                                    examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}"))
+                    ),
                     @ApiResponse(responseCode = "403", description = "Access denied",
                             content = @Content(mediaType = "application/json",
-                                    examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
-                            )),
+                                    examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}"))
+                    ),
                     @ApiResponse(responseCode = "404", description = "User not found",
                             content = @Content(mediaType = "application/json",
-                                    examples = @ExampleObject(value = "{\"message\": \"User not found\"}"))),
+                                    examples = @ExampleObject(value = "{\"message\": \"User not found\"}"))
+                    ),
                     @ApiResponse(responseCode = "500", description = "Internal server error",
                             content = @Content(mediaType = "application/json",
-                                    examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")))
+                                    examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred. Please contact support.\"}"))
+                    )
             })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
@@ -186,7 +189,7 @@ public class UserController {
                             )),
                     @ApiResponse(responseCode = "500", description = "Internal server error",
                             content = @Content(mediaType = "application/json",
-                                    examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")))
+                                    examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred. Please contact support.\"}")))
             })
     @GetMapping
     public ResponseEntity<ApiResponseDto<UserResponseDTO>> getAllUsers(
@@ -203,6 +206,7 @@ public class UserController {
                             content = @Content(mediaType = "application/json",
                                     examples = @ExampleObject(value = """
                                                 {
+                                                    "id": 1,
                                                     "name": "John",
                                                     "surname": "Doe",
                                                     "email": "john.doe@example.com",
@@ -222,7 +226,7 @@ public class UserController {
                                     examples = @ExampleObject(value = "{\"message\": \"User not found\"}"))),
                     @ApiResponse(responseCode = "500", description = "Internal server error",
                             content = @Content(mediaType = "application/json",
-                                    examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")))
+                                    examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred. Please contact support.\"}")))
             })
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
