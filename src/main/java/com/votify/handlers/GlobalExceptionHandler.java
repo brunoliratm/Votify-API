@@ -147,7 +147,7 @@ public class GlobalExceptionHandler {
         if (ex.getValue() != null) {
             String paramName = ex.getPropertyName() != null ? ex.getPropertyName() : "parameter";
             String typeName = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "required type";
-            message = "Invalid format: '" + ex.getValue() + "' is not a valid " + typeName;
+            message = "Invalid format for '" + paramName + "': '" + ex.getValue() + "' is not a valid " + typeName;
         }
         
         logger.debug("Type mismatch exception: {}", ex.getMessage());
