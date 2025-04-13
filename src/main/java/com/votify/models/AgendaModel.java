@@ -43,5 +43,16 @@ public class AgendaModel extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private AgendaStatus status= AgendaStatus.NOT_STARTED;
+    private AgendaStatus status = AgendaStatus.NOT_STARTED;
+
+    public boolean isVotingAvailable() {
+        LocalDateTime now = LocalDateTime.now();
+        return this.getStatus() == AgendaStatus.OPEN
+               && !now.isBefore(this.getStartVotingAt())
+               && !now.isAfter(this.getEndVotingAt());
+    }
+
+    public boolean hasVotingEnded() {
+        return LocalDateTime.now().isAfter(this.getEndVotingAt());
+    }
 }

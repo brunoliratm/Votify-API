@@ -14,8 +14,7 @@ public interface AgendaRepository extends JpaRepository<AgendaModel, Long> {
     @Query("SELECT a FROM AgendaModel a WHERE a.deletedAt IS NULL")
     Page<AgendaModel> findAllActive(Pageable pageable);
 
-    @Query("SELECT s FROM AgendaModel s WHERE s.id = :id AND s.deletedAt IS NULL")
-    Optional<AgendaModel> findByIdActive(Long id);
+    Optional<AgendaModel> findByIdAndDeletedAtIsNull(Long id);
 
     List<AgendaModel> findByStatusAndEndVotingAtBefore(AgendaStatus status, LocalDateTime endTime);
 }

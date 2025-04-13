@@ -17,7 +17,7 @@ public class AgendaCron {
         this.agendaRepository = agendaRepository;
     }
 
-    @Scheduled(fixedRate = 60000) 
+    @Scheduled(cron = "0 */5 * * * *")
     @Transactional
     public void closeExpiredVotingSessions() {
         LocalDateTime now = LocalDateTime.now();
@@ -30,5 +30,4 @@ public class AgendaCron {
 
         agendaRepository.saveAll(openAgendas);
     }
-
 }

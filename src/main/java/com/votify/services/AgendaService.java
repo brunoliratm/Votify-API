@@ -82,7 +82,7 @@ public class AgendaService {
     }
 
     public AgendaModel getAgendaById(Long id) {
-        return this.agendaRepository.findByIdActive(id)
+        return this.agendaRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(AgendaNotFoundException::new);
     }
 
@@ -95,7 +95,7 @@ public class AgendaService {
         Long approvals = voteRepository.countVotesByType(agenda.getId(), VoteOption.YES);
         Long disapprovals = voteRepository.countVotesByType(agenda.getId(), VoteOption.NO);
         Long totalVotes = approvals + disapprovals;
-        
+
         infoVotesResponseDto infoVotes = new infoVotesResponseDto(
             totalVotes,
             approvals,
@@ -150,24 +150,21 @@ public class AgendaService {
         this.agendaRepository.save(agenda);
     }
 
-    public void startVoting(Long id, Integer durationMinutes){
-        AgendaModel agenda = agendaRepository.findById(id)
-                .orElseThrow(() -> new AgendaNotFoundException());
+    public void startVoting(Long id, Integer durationSeconds){
+        AgendaModel agenda = getAgendaById(id);
 
         if (agenda.getStatus() == AgendaStatus.OPEN) {
             throw new VotingException("Voting is already open for this agenda");
         }
 
-        if (agenda.getStatus() == AgendaStatus.CLOSED || 
+        if (agenda.getStatus() == AgendaStatus.CLOSED ||
             (agenda.getEndVotingAt() != null && agenda.getEndVotingAt().isBefore(LocalDateTime.now()))) {
             throw new VotingException("Voting is closed for this agenda");
         }
 
-        
-
         agenda.setStatus(AgendaStatus.OPEN);
         agenda.setStartVotingAt(LocalDateTime.now());
-        agenda.setEndVotingAt(LocalDateTime.now().plusMinutes(durationMinutes != null ? durationMinutes : 30));
+        agenda.setEndVotingAt(LocalDateTime.now().plusSeconds(durationSeconds != null ? durationSeconds : 60));
         agendaRepository.save(agenda);
     }
 
@@ -190,7 +187,7 @@ public class AgendaService {
             approvals,
             disapprovals
         );
-        
+
         return new AgendaResponseDto(
                 agendaModel.getId(),
                 agendaModel.getTitle(),
@@ -203,9 +200,17 @@ public class AgendaService {
         );
     }
 
-    public AgendaModel getAgendaByIdActive(Long id) {
-        return this.agendaRepository.findByIdActive(id)
-                .orElseThrow(AgendaNotFoundException::new);
+    @Transactional
+    public boolean validateVotingAvailability(AgendaModel agenda) {
+        if (!agenda.isVotingAvailable()) {
+            if (agenda.getStatus() == AgendaStatus.OPEN && agenda.hasVotingEnded()) {
+                agenda.setStatus(AgendaStatus.CLOSED);
+                agendaRepository.save(agenda);
+            }
+            return false;
+        }
+
+        return true;
     }
 }
 

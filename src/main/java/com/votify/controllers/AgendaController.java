@@ -200,8 +200,8 @@ public class AgendaController {
     })
     @PostMapping("/{id}/start-voting")
     public ResponseEntity<Void> startVoting(@PathVariable Long id, 
-            @RequestParam(required = false) Integer durationMinutes) {
-        this.agendaService.startVoting(id, durationMinutes);
+            @RequestParam(required = false) Integer durationSeconds) {
+        this.agendaService.startVoting(id, durationSeconds);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

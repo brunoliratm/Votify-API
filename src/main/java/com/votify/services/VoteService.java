@@ -8,11 +8,13 @@ import com.votify.exceptions.VotingException;
 import com.votify.models.AgendaModel;
 import com.votify.models.UserModel;
 import com.votify.models.VoteModel;
+import com.votify.repositories.AgendaRepository;
 import com.votify.repositories.VoteRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 
 @Service
@@ -21,7 +23,7 @@ public class VoteService {
     private final VoteRepository voteRepository;
     private final AgendaService agendaService;
 
-    public VoteService(VoteRepository voteRepository, AgendaService agendaService) {
+    public VoteService(VoteRepository voteRepository, AgendaService agendaService, AgendaRepository agendaRepository) {
         this.voteRepository = voteRepository;
         this.agendaService = agendaService;
     }
@@ -33,19 +35,13 @@ public class VoteService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserModel currentUser = (UserModel) authentication.getPrincipal();
 
-        AgendaModel agenda = this.agendaService.getAgendaByIdActive(agendaId);
+        AgendaModel agenda = this.agendaService.getAgendaById(agendaId);
 
-        if (agenda.getStatus() != AgendaStatus.OPEN
-                || LocalDateTime.now().isBefore(agenda.getStartVotingAt())
-                || LocalDateTime.now().isAfter(agenda.getEndVotingAt())) {
+        if (!agendaService.validateVotingAvailability(agenda)) {
             throw new VotingException("Voting is not allowed for this agenda at this time");
-        }
-
-        if (this.voteRepository.hasAssociateVoted(currentUser.getId(), agendaId)) {
-            throw new VotingException("Associate has already voted on this agenda");
-        }
-
-        if (!currentUser.getRole().equals(UserRole.ASSOCIATE)) {
+        } else if (this.voteRepository.hasAssociateVoted(currentUser.getId(), agendaId)) {
+            throw new VotingException("You has already voted on this agenda");
+        } else if (!currentUser.getRole().equals(UserRole.ASSOCIATE)) {
             throw new VotingException("Only associates can vote");
         }
 
