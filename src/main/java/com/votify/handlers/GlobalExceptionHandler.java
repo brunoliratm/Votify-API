@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import com.votify.exceptions.ConflictException;
-import com.votify.exceptions.UserNotFoundException;
-import com.votify.exceptions.ValidationErrorException;
 import com.votify.models.CustomErrorResponse;
 
 import java.time.LocalDateTime;
@@ -22,6 +19,8 @@ import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @ControllerAdvice
@@ -120,19 +119,39 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<CustomErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
-        String message = ex.getMessage();
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public ResponseEntity<CustomErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String message;
+        
         if (ex.getName().equals("direction")) {
             message = "Invalid direction value. Allowed values are: ASC, DESC.";
-        }
-
-        if (ex.getName().equals("sort")) {
+        } else if (ex.getName().equals("sort")) {
             String enumValues = utilHelper.getEnumValues(Objects.requireNonNull(ex.getRequiredType()));
             message = "Invalid sort value. Allowed values are: " + enumValues;
+        } else {
+            String paramName = ex.getName();
+            String value = ex.getValue() != null ? ex.getValue().toString() : "null";
+            String typeName = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "required type";
+            message = "Invalid parameter '" + paramName + "': '" + value + "' is not a valid " + typeName;
         }
+        
+        logger.debug("Method argument type mismatch: {}", ex.getMessage());
+        return new ResponseEntity<>(new CustomErrorResponse(message), HttpStatus.BAD_REQUEST);
+    }
 
-        CustomErrorResponse response = new CustomErrorResponse(message);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(org.springframework.beans.TypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<CustomErrorResponse> handleTypeMismatchException(org.springframework.beans.TypeMismatchException ex) {
+        String message = "Invalid parameter format";
+        
+        if (ex.getValue() != null) {
+            String paramName = ex.getPropertyName() != null ? ex.getPropertyName() : "parameter";
+            String typeName = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "required type";
+            message = "Invalid format for '" + paramName + "': '" + ex.getValue() + "' is not a valid " + typeName;
+        }
+        
+        logger.debug("Type mismatch exception: {}", ex.getMessage());
+        return new ResponseEntity<>(new CustomErrorResponse(message), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(SessionNotFoundException.class)
@@ -174,7 +193,13 @@ public class GlobalExceptionHandler {
                 logger.debug("Exception details:", ex);
             }
         }
-        return new ResponseEntity<>(new CustomErrorResponse("An unknown error occurred"),
+        return new ResponseEntity<>(new CustomErrorResponse("An unknown error occurred. Please contact support."),
             HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(VotingException.class)
+    public ResponseEntity<CustomErrorResponse> handleVotingException(VotingException ex) {
+        return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
 }

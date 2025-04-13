@@ -3,7 +3,6 @@ package com.votify.services;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import com.votify.dtos.responses.UserResponseDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +72,6 @@ public class UserService {
 
         if (name != null && !name.isEmpty() && roleValue != null && !roleValue.isEmpty()) {
             try {
-              
                 UserRole userRole = UserRole.valueOf(roleValue.toUpperCase());
                 userPage = userRepository.findByDeletedAtIsNullAndNameContainingIgnoreCaseAndRole(name, userRole, pageable);
             } catch (IllegalArgumentException e) {
@@ -113,7 +111,7 @@ public class UserService {
     }
 
     private UserResponseDTO convertToDTO(UserModel userModel) {
-        return new UserResponseDTO(userModel.getName(), userModel.getSurname(), userModel.getEmail(),
+        return new UserResponseDTO(userModel.getId(), userModel.getName(), userModel.getSurname(), userModel.getEmail(),
                 userModel.getRole() != null ? userModel.getRole().toString() : null);
     }
 
@@ -182,7 +180,7 @@ public class UserService {
         }
 
         if (isValidField(userRequestDto.password())) {
-            user.setPassword(userRequestDto.password());
+            user.setPassword(new BCryptPasswordEncoder().encode(userRequestDto.password()));
         }
 
         if (isValidField(userRequestDto.role())) {
@@ -217,4 +215,5 @@ public class UserService {
         return userRepository.findByEmail(email)
             .orElse(null);
     }
+
 }
