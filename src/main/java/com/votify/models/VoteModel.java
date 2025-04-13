@@ -20,6 +20,7 @@ public class VoteModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @Column(name = "associate_id", nullable = false)
     private UserModel associateId;
 
