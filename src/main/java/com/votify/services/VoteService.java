@@ -1,7 +1,6 @@
 package com.votify.services;
 
 import com.votify.dtos.requests.VoteRequestDto;
-import com.votify.enums.AgendaStatus;
 import com.votify.enums.UserRole;
 import com.votify.enums.VoteOption;
 import com.votify.exceptions.VotingException;
@@ -37,7 +36,7 @@ public class VoteService {
 
         AgendaModel agenda = this.agendaService.getAgendaById(agendaId);
 
-        if (!agendaService.validateVotingAvailability(agenda)) {
+        if (!this.agendaService.validateVotingAvailability(agenda)) {
             throw new VotingException("Voting is not allowed for this agenda at this time");
         } else if (this.voteRepository.hasAssociateVoted(currentUser.getId(), agendaId)) {
             throw new VotingException("You has already voted on this agenda");
