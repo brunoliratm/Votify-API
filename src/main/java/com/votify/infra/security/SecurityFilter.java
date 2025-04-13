@@ -1,6 +1,5 @@
 package com.votify.infra.security;
 
-import com.votify.exceptions.UserNotFoundException;
 import com.votify.models.UserModel;
 import com.votify.services.TokenService;
 import com.votify.services.UserService;
@@ -13,9 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
-import java.util.Optional;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {

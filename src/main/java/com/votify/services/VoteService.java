@@ -4,10 +4,10 @@ import com.votify.dtos.requests.VoteRequestDto;
 import com.votify.enums.UserRole;
 import com.votify.enums.VoteOption;
 import com.votify.exceptions.VotingException;
+import com.votify.facades.AgendaFacade;
 import com.votify.models.AgendaModel;
 import com.votify.models.UserModel;
 import com.votify.models.VoteModel;
-import com.votify.repositories.AgendaRepository;
 import com.votify.repositories.VoteRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,11 +20,11 @@ import java.time.LocalDateTime;
 public class VoteService {
 
     private final VoteRepository voteRepository;
-    private final AgendaService agendaService;
+    private final AgendaFacade agendaFacade;
 
-    public VoteService(VoteRepository voteRepository, AgendaService agendaService, AgendaRepository agendaRepository) {
+    public VoteService(VoteRepository voteRepository, AgendaFacade agendaFacade) {
         this.voteRepository = voteRepository;
-        this.agendaService = agendaService;
+        this.agendaFacade = agendaFacade;
     }
 
     @Transactional
@@ -34,9 +34,9 @@ public class VoteService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserModel currentUser = (UserModel) authentication.getPrincipal();
 
-        AgendaModel agenda = this.agendaService.getAgendaById(agendaId);
+        AgendaModel agenda = this.agendaFacade.getAgendaById(agendaId);
 
-        if (!this.agendaService.validateVotingAvailability(agenda)) {
+        if (!this.agendaFacade.validateVotingAvailability(agenda)) {
             throw new VotingException("Voting is not allowed for this agenda at this time");
         } else if (this.voteRepository.hasAssociateVoted(currentUser.getId(), agendaId)) {
             throw new VotingException("You has already voted on this agenda");

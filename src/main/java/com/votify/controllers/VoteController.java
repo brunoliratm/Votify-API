@@ -1,7 +1,7 @@
 package com.votify.controllers;
 
 import com.votify.dtos.requests.VoteRequestDto;
-import com.votify.services.VoteService;
+import com.votify.facades.VoteFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/${api.version}/votes")
 public class VoteController {
 
-    private final VoteService voteService;
+    private final VoteFacade voteFacade;
 
-    public VoteController(VoteService voteService) {
-        this.voteService = voteService;
+    public VoteController(VoteFacade voteFacade) {
+        this.voteFacade = voteFacade;
     }
 
     @Operation(summary = "Register a vote", description = "Allows the currently logged-in associate to vote on an agenda.", responses = {
@@ -52,7 +52,7 @@ public class VoteController {
     })
     @PostMapping
     public ResponseEntity<Void> registerVote(@RequestBody @Valid VoteRequestDto voteRequestDto) {
-        this.voteService.registerVote(voteRequestDto);
+        this.voteFacade.registerVote(voteRequestDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
