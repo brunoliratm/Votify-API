@@ -68,15 +68,18 @@ public class AuthService implements UserDetailsService {
         if (!email.matches("^[^@]+@[^@]+$"))
             throw new InvalidCredentialsException("Invalid email format");
 
-        UserModel user = userService.loadUserByLogin(email);
+        UserModel user = userService.getUserByEmail(email);
 
-        String resetCode = RandomCodeGenService.generateRandomCode(6);
-        user.setResetPasswordCode(resetCode);
-        user.setResetPasswordExpirationCode(LocalDateTime.now().plusMinutes(5));
-        userService.updateUser(user);
-        emailService.sendResetPasswordEmail(email, resetCode);
+        if (user.isDeleted())
+            user = null;
 
-
+        if (user != null) {
+            String resetCode = RandomCodeGenService.generateRandomCode(6);
+            user.setResetPasswordCode(resetCode);
+            user.setResetPasswordExpirationCode(LocalDateTime.now().plusMinutes(5));
+            userService.updateUser(user);
+            emailService.sendResetPasswordEmail(email, resetCode);
+        }
     }
 
     public void resetPassword(String email, String code, String password, String confirmPassword) {
@@ -88,12 +91,9 @@ public class AuthService implements UserDetailsService {
         }
         UserModel user = userService.loadUserByLogin(email);
 
-        if (user.isDeleted())
-            throw new UserNotFoundException();
-
-        if (user.getResetPasswordCode() == null || !user.getResetPasswordCode().equals(code)) {
+        if (user.getResetPasswordCode() == null || !user.getResetPasswordCode().equals(code))
             throw new InvalidResetCodeException("Invalid reset code");
-        }
+
         if (user.getResetPasswordExpirationCode() == null ||
                 user.getResetPasswordExpirationCode().isBefore(LocalDateTime.now())) {
             throw new InvalidResetCodeException("expired code");

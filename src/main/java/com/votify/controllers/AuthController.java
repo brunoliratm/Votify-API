@@ -65,7 +65,7 @@ public class AuthController {
     }
     @Operation(summary = "Forgot password", description = "Send an email with a code to reset the password", responses = {
 
-            @ApiResponse(responseCode = "200", description = "Email sent successfully"),
+            @ApiResponse(responseCode = "204", description = "Email sent successfully"),
             @ApiResponse(responseCode = "400", description = "Incorrect data submission", content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "Invalid email", value = "{\"errors\": [\"Email cannot be blank\", \"Invalid email format\"]}"),
             }))
@@ -73,7 +73,7 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<Void> forgotPassword(@RequestBody @Valid UserEmailRequestDTO userEmailRequestDTO) {
         authService.forgotPassword(userEmailRequestDTO.email());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
 
     }
 
@@ -86,8 +86,9 @@ public class AuthController {
                     @ExampleObject(name = "Code expired", value = "{\"message\": \"Expired code\"}"),
 
             })),
-            @ApiResponse(responseCode = "403", description = "User inactive", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Inactive user\"}"))),
-            @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"User not found\"}"))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{\"message\": \"User not found\"}"))),
     })
     @PostMapping("/reset-password")
     public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordRequestDTO resetPasswordRequestDto) {
