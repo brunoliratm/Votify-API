@@ -181,7 +181,7 @@ public class AgendaController {
     public ResponseEntity<Void> startVoting(@PathVariable Long id, 
             @RequestParam(required = false) Integer durationMinutes) {
         this.agendaService.startVoting(id, durationMinutes);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
 
