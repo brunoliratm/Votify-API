@@ -175,8 +175,29 @@ public class AgendaController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @Operation(summary = "Start voting for an agenda", description = "Start the voting process for a specific agenda.")
-    @ApiResponse(responseCode = "200", description = "Voting started successfully.")
+    @Operation(summary = "Start voting for an agenda", description = "Start the voting process for a specific agenda", responses = {
+        @ApiResponse(responseCode = "204", description = "Voting started successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized access",
+                content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
+                )),
+        @ApiResponse(responseCode = "403", description = "Access denied",
+                content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
+                )),
+        @ApiResponse(responseCode = "404", description = "Agenda not found",
+            content = @Content(mediaType = "application/json",
+                examples = {
+                    @ExampleObject(name = "AgendaNotFound", value = "{\"message\": \"Agenda not found\"}")
+                })
+        ),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")
+            )
+        )
+    })
     @PostMapping("/{id}/start-voting")
     public ResponseEntity<Void> startVoting(@PathVariable Long id, 
             @RequestParam(required = false) Integer durationMinutes) {
