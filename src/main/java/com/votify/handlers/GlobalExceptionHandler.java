@@ -34,6 +34,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CustomErrorResponse> handlerUserNotFound(UserNotFoundException ex) {
         return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(UserDeletedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<CustomErrorResponse> handlerUserNotFound(UserDeletedException ex) {
+        return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage()), HttpStatus.FORBIDDEN);
+    }
 
     @ExceptionHandler(ValidationErrorException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
