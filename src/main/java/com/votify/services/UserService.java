@@ -201,9 +201,14 @@ public class UserService {
     }
 
     public UserModel findOrganizer(Long id) {
-        UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        if (!user.getAuthorities().contains(new SimpleGrantedAuthority("ORGANIZER"))) throw new UserNotFoundException();
-        return user;
+        Optional<UserModel> user = userRepository.findById(id);
+    if (user.isEmpty() ||
+            !user.get().getAuthorities().contains(new SimpleGrantedAuthority("ORGANIZER"))
+            || user.get().getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))
+            || user.get().isDeleted())
+        throw new UserNotFoundException("Organizer not found");
+
+        return user.get();
     }
 
     @Transactional
