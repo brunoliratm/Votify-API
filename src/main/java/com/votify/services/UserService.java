@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.votify.dtos.responses.UserResponseDTO;
+import com.votify.exceptions.InvalidCredentialsException;
+import com.votify.interfaces.UserRoleInterface;
 import jakarta.transaction.Transactional;
 import com.votify.exceptions.ConflictException;
 import com.votify.exceptions.UserNotFoundException;
@@ -15,7 +17,9 @@ import com.votify.dtos.requests.UserRequestDto;
 import com.votify.enums.UserRole;
 import com.votify.models.UserModel;
 import com.votify.repositories.UserRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -43,6 +47,8 @@ public class UserService {
     public void createUser(UserRequestDto userRequestDto, BindingResult bindingResult) {
         validateFieldsWithCheckEmail(userRequestDto, bindingResult);
 
+        validateUserRole(userRequestDto);
+
         UserModel userModel = new UserModel();
         userModel.setName(userRequestDto.name());
         userModel.setSurname(userRequestDto.surname());
@@ -51,7 +57,7 @@ public class UserService {
         String encryptedPassword = passwordEncoder.encode(userRequestDto.password());
         userModel.setPassword(encryptedPassword);
 
-        if (userRequestDto.role() != null && !userRequestDto.role().isEmpty()) {
+        if (!userRequestDto.role().isEmpty()) {
             try {
                 userModel.setRole(UserRole.valueOf(userRequestDto.role().toUpperCase()));
             } catch (IllegalArgumentException e) {
@@ -122,6 +128,8 @@ public class UserService {
             throw new ValidationErrorException(errors);
         }
 
+        validateUserRole(userRequestDto);
+
         if (userRequestDto.email() != null && !userRequestDto.email().isEmpty()
             && !userRequestDto.email().equals(user.getEmail())) {
             Optional<UserModel> existingUserWithEmail =
@@ -174,6 +182,18 @@ public class UserService {
     @Transactional
     public void deleteUser(Long id) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserModel currentUser = (UserModel) authentication.getPrincipal();
+
+        if (currentUser.getRole() == UserRole.ORGANIZER) {
+            if (!user.getRole().name().equalsIgnoreCase("ASSOCIATE")) {
+                throw new InvalidCredentialsException("Organizers can only manipulate associates");
+            }
+        }
+
+        resolveUserManipulate(user.getRole().name());
+
         user.delete();
         userRepository.save(user);
     }
@@ -205,4 +225,22 @@ public class UserService {
         return userRepository.findByEmail(email).orElse(null);
     }
 
+    private void validateUserRole(UserRoleInterface userDto) {
+        if (userDto.role().equalsIgnoreCase(UserRole.ADMIN.name())) {
+            throw new InvalidCredentialsException("It's not allowed to create an ADMIN user.");
+        }
+
+        resolveUserManipulate(userDto.role());
+    }
+
+    private void resolveUserManipulate(String role) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserModel currentUser = (UserModel) authentication.getPrincipal();
+
+        if (currentUser.getRole() == UserRole.ORGANIZER) {
+            if (!"ASSOCIATE".equalsIgnoreCase(role)) {
+                throw new InvalidCredentialsException("Organizers can only manipulate associates.");
+            }
+        }
+    }
 }

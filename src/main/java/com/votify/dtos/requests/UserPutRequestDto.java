@@ -1,5 +1,6 @@
 package com.votify.dtos.requests;
 
+import com.votify.interfaces.UserRoleInterface;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -19,4 +20,4 @@ public record UserPutRequestDto(
 
     @Pattern(regexp = "ADMIN|ORGANIZER|ASSOCIATE", message = "Role must be one of the following: ADMIN, ORGANIZER, ASSOCIATE.")
     String role
-) {}
+) implements UserRoleInterface {}

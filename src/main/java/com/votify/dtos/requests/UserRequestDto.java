@@ -1,5 +1,7 @@
 package com.votify.dtos.requests;
 
+import com.votify.enums.UserRole;
+import com.votify.interfaces.UserRoleInterface;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -21,4 +23,4 @@ public record UserRequestDto(
     @NotBlank(message = "{users.role.NotBlank}")
     @Pattern(regexp = "ADMIN|ORGANIZER|ASSOCIATE", message = "{users.role.Invalid}")
     String role
-) {}
+) implements UserRoleInterface {}
