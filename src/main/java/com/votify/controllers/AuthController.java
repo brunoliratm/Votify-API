@@ -34,26 +34,24 @@ public class AuthController {
                                     @ExampleObject(name = "Missing required fields",
                                             value = "{\"message\": \"Email and password are required\"}"),
                                     @ExampleObject(name = "Invalid email format",
-                                            value = "{\"message\": \"Email format is incorrect\"}"),
-                                    @ExampleObject(name = "Incorrect email or password",
-                                            value = "{\"message\": \"Email or password does not match\"}")
+                                            value = "{\"message\": \"Email format is incorrect\"}")
                             })
             ),
-            @ApiResponse(responseCode = "404", description = "User not found",
+            @ApiResponse(responseCode = "401", description = "Invalid credentials",
                     content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(name = "UserNotFound",
-                                    value = "{\"message\": \"User not found\"}")
+                            examples = @ExampleObject(name = "Sending Incorrect Data",
+                                    value = "{\"message\": \"Email or password does not match\"}")
                     )
             ),
-            @ApiResponse(responseCode = "403", description = "Inactive user",
+            @ApiResponse(responseCode = "403", description = "User deleted",
                     content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(name = "UserInactive",
-                                    value = "{\"message\": \"User is inactive\"}")
+                            examples = @ExampleObject(name = "User Deleted",
+                                    value = "{\"message\": \"This user has been deleted MM/dd/yyyy\"}")
                     )
             ),
             @ApiResponse(responseCode = "500", description = "Unexpected error",
                     content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(name = "UnexpectedError",
+                            examples = @ExampleObject(name = "Unexpected Error",
                                     value = "{\"message\": \"An error occurred during login\"}")
                     )
             )
@@ -87,8 +85,9 @@ public class AuthController {
                     @ExampleObject(name = "Code expired", value = "{\"message\": \"Expired code\"}"),
 
             })),
-            @ApiResponse(responseCode = "403", description = "User inactive", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Inactive user\"}"))),
-            @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"User not found\"}"))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{\"message\": \"User not found\"}"))),
     })
     @PostMapping("/reset-password")
     public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordRequestDto resetPasswordRequestDto) {
