@@ -39,7 +39,4 @@ public class SessionFacade {
         this.sessionService.delete(id);
     }
 
-    public SessionModel getSessionById(Long id) {
-        return this.sessionService.getSessionById(id);
-    }
 }
