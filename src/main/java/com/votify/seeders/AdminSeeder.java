@@ -2,9 +2,12 @@ package com.votify.seeders;
 
 import com.votify.config.AdminProperties;
 import com.votify.dtos.requests.UserRequestDto;
+import com.votify.enums.UserRole;
+import com.votify.models.UserModel;
 import com.votify.services.UserService;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -25,18 +28,14 @@ public class AdminSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        UserRequestDto adminDto = new UserRequestDto(
-            "Admin",
-            "Votify",
-            adminProperties.getEmail(),
-            adminProperties.getPassword(),
-            "ADMIN"
-        );
+        if (userService.getUserByEmail(adminProperties.getEmail()) == null) {
+            UserModel admin = new UserModel();
 
-        if (userService.getUserByEmail(adminDto.email()) == null) {
-            BindingResult bindingResult = new BeanPropertyBindingResult(adminDto, "userRequestDto");
-            userService.createUser(adminDto, bindingResult);
-
+            admin.setName("Admin");
+            admin.setSurname("Default");
+            admin.setEmail(adminProperties.getEmail());
+            admin.setPassword(new BCryptPasswordEncoder().encode(adminProperties.getPassword()));
+            admin.setRole(UserRole.ADMIN);
             log.info("ADMIN user create successfully!");
         }
     }
