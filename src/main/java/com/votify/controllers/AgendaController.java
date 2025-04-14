@@ -3,6 +3,7 @@ package com.votify.controllers;
 import com.votify.dtos.requests.AgendaRequestDto;
 import com.votify.dtos.requests.AgendaRequestPutDto;
 import com.votify.dtos.responses.AgendaResponseDto;
+import com.votify.dtos.responses.AgendaUniqueResponseDto;
 import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.enums.SortAgenda;
 import com.votify.services.AgendaService;
@@ -101,8 +102,8 @@ public class AgendaController {
         )
     })
     @GetMapping("/{id}")
-    public ResponseEntity<AgendaResponseDto> getById(@PathVariable Long id) {
-        AgendaResponseDto response = this.agendaService.findById(id);
+    public ResponseEntity<AgendaUniqueResponseDto> getById(@PathVariable Long id) {
+        AgendaUniqueResponseDto response = this.agendaService.findById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -171,6 +172,36 @@ public class AgendaController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         this.agendaService.delete(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Operation(summary = "Start voting for an agenda", description = "Start the voting process for a specific agenda", responses = {
+        @ApiResponse(responseCode = "204", description = "Voting started successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized access",
+                content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
+                )),
+        @ApiResponse(responseCode = "403", description = "Access denied",
+                content = @Content(mediaType = "application/json",
+                        examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
+                )),
+        @ApiResponse(responseCode = "404", description = "Agenda not found",
+            content = @Content(mediaType = "application/json",
+                examples = {
+                    @ExampleObject(name = "AgendaNotFound", value = "{\"message\": \"Agenda not found\"}")
+                })
+        ),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")
+            )
+        )
+    })
+    @PostMapping("/{id}/start-voting")
+    public ResponseEntity<Void> startVoting(@PathVariable Long id, 
+            @RequestParam(required = false) Integer durationSeconds) {
+        this.agendaService.startVoting(id, durationSeconds);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

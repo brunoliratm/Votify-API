@@ -20,18 +20,18 @@ public class VoteModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "vote_option")
-    private VoteOption voteOption;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "associate_id", nullable = false)
+    private UserModel associateId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agenda_id", nullable = false)
     private AgendaModel agenda;
 
-    @ManyToOne
-    @JoinColumn(name = "associate_id", nullable = false)
-    private UserModel associate;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "vote_type", nullable = false)
+    private VoteOption voteType;
 
-    @Column(name = "voted_time", nullable = false, updatable = false)
-    private LocalDateTime votedTime;
+    @Column(name = "voted_at", nullable = false, updatable = false)
+    private LocalDateTime votedAt;
 }

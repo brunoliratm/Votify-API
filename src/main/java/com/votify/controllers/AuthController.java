@@ -63,9 +63,9 @@ public class AuthController {
                 .header("Authorization", "Bearer " + token)
                 .build();
     }
-    @Operation(summary = "Forgot password", description = "Send an email with a code to reset the password", responses = {
 
-            @ApiResponse(responseCode = "204", description = "Email sent successfully"),
+    @Operation(summary = "Forgot password", description = "Send an email with a code to reset the password", responses = {
+            @ApiResponse(responseCode = "200", description = "Email sent successfully"),
             @ApiResponse(responseCode = "400", description = "Incorrect data submission", content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "Invalid email", value = "{\"errors\": [\"Email cannot be blank\", \"Invalid email format\"]}"),
             }))

@@ -6,7 +6,6 @@ import com.votify.exceptions.InvalidResetCodeException;
 import com.votify.exceptions.UserDeletedException;
 import com.votify.exceptions.UserNotFoundException;
 import com.votify.models.UserModel;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,7 +21,6 @@ public class AuthService implements UserDetailsService {
     private final UserService userService;
     private final EmailService emailService;
 
-    @Autowired
     public AuthService(UserService userService, TokenService tokenService, EmailService emailService) {
         this.userService = userService;
         this.tokenService = tokenService;
@@ -33,6 +31,7 @@ public class AuthService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UserNotFoundException {
         return userService.loadUserByLogin(username);
     }
+
     public String login(AuthenticationRequestDTO loginDTO) {
         validateLogin(loginDTO);
         return tokenService.createToken(loginDTO);

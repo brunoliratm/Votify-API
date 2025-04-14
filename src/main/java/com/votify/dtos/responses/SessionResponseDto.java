@@ -1,8 +1,6 @@
 package com.votify.dtos.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.votify.models.UserModel;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
