@@ -5,7 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.votify.dtos.requests.AuthenticationRequestDTO;
+import com.votify.dtos.requests.AuthenticationRequestDto;
 import com.votify.exceptions.InvalidTokenException;
 import com.votify.models.UserModel;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +32,7 @@ public class TokenService {
         this.authenticationManager = authenticationManager;
     }
 
-    public String createToken(AuthenticationRequestDTO loginDTO) {
+    public String createToken(AuthenticationRequestDto loginDTO) {
 
         try {
             var userPassword = new UsernamePasswordAuthenticationToken(loginDTO.email(), loginDTO.password());

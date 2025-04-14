@@ -1,6 +1,7 @@
 package com.votify.facades;
 
-import com.votify.dtos.requests.UserRequestDTO;
+import com.votify.dtos.requests.UserPutRequestDto;
+import com.votify.dtos.requests.UserRequestDto;
 import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.dtos.responses.UserResponseDTO;
 import com.votify.enums.UserRole;
@@ -16,7 +17,7 @@ public class UserFacade {
         this.userService = userService;
     }
 
-    public void create(UserRequestDTO userRequest, BindingResult bindingResult) {
+    public void create(UserRequestDto userRequest, BindingResult bindingResult) {
         this.userService.createUser(userRequest, bindingResult);
     }
 
@@ -28,7 +29,7 @@ public class UserFacade {
         return this.userService.getUserById(id);
     }
 
-    public void update(Long id, UserRequestDTO userRequest, BindingResult bindingResult) {
+    public void update(Long id, UserPutRequestDto userRequest, BindingResult bindingResult) {
         this.userService.updateUser(id, userRequest, bindingResult);
     }
 

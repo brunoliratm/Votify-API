@@ -22,35 +22,37 @@ public class VoteController {
     }
 
     @Operation(summary = "Register a vote", description = "Allows the currently logged-in associate to vote on an agenda.", responses = {
-            @ApiResponse(responseCode = "201", description = "Vote registered successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid data",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(name = "Vote cannot be null", value = "{\"message\": \"Validation error\", \"errors\": [\"Vote option cannot be null\"]}"),
-                                    @ExampleObject(name = "Voting unavailable", value = "{\"message\": \"Voting is not allowed for this agenda at this time.\"}")
-                            })
-            ),
-            @ApiResponse(responseCode = "401", description = "Unauthorized access",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
-                    )),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
-                    )),
-            @ApiResponse(responseCode = "404", description = "Agenda not found",
-                    content = @Content(mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(name = "AgendaNotFound", value = "{\"message\": \"Agenda not found\"}")
-                            })
-            ),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")
-                    )
+        @ApiResponse(responseCode = "201", description = "Vote registered successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid data",
+            content = @Content(
+                mediaType = "application/json",
+                examples = {
+                    @ExampleObject(name = "Vote cannot be null", value = "{\"message\": \"Validation error\", \"errors\": [\"Vote option cannot be null\"]}"),
+                    @ExampleObject(name = "Voting unavailable", value = "{\"message\": \"Voting is not allowed for this agenda at this time.\"}"),
+                    @ExampleObject(name = "AlreadyVoted", value = "{\"message\": \"You has already voted on this agenda\"}"),
+                    @ExampleObject(name = "OnlyAssociates", value = "{\"message\": \"Only associates can vote\"}")
+                })
+        ),
+        @ApiResponse(responseCode = "401", description = "Unauthorized access",
+            content = @Content(mediaType = "application/json",
+                examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
+            )),
+        @ApiResponse(responseCode = "403", description = "Access denied",
+            content = @Content(mediaType = "application/json",
+                examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
+            )),
+        @ApiResponse(responseCode = "404", description = "Agenda not found",
+            content = @Content(mediaType = "application/json",
+                examples = {
+                    @ExampleObject(name = "AgendaNotFound", value = "{\"message\": \"Agenda not found\"}")
+                })
+        ),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(value = "{\"message\": \"An unknown error occurred\"}")
             )
+        )
     })
     @PostMapping
     public ResponseEntity<Void> registerVote(@RequestBody @Valid VoteRequestDto voteRequestDto) {

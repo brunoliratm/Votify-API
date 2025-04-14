@@ -1,6 +1,6 @@
 package com.votify.services;
 
-import com.votify.dtos.requests.AuthenticationRequestDTO;
+import com.votify.dtos.requests.AuthenticationRequestDto;
 import com.votify.exceptions.InvalidCredentialsException;
 import com.votify.exceptions.InvalidResetCodeException;
 import com.votify.exceptions.UserDeletedException;
@@ -32,12 +32,12 @@ public class AuthService implements UserDetailsService {
         return userService.loadUserByLogin(username);
     }
 
-    public String login(AuthenticationRequestDTO loginDTO) {
+    public String login(AuthenticationRequestDto loginDTO) {
         validateLogin(loginDTO);
         return tokenService.createToken(loginDTO);
     }
 
-    private void validateLogin(AuthenticationRequestDTO loginDTO) {
+    private void validateLogin(AuthenticationRequestDto loginDTO) {
         if (loginDTO.email() == null || loginDTO.password() == null) {
             throw new InvalidCredentialsException("Email and password are required");
         } else if (!loginDTO.email().matches("^[^@]+@[^@]+$")) {

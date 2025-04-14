@@ -1,8 +1,8 @@
 package com.votify.controllers;
 
-import com.votify.dtos.requests.AuthenticationRequestDTO;
-import com.votify.dtos.requests.ResetPasswordRequestDTO;
-import com.votify.dtos.requests.UserEmailRequestDTO;
+import com.votify.dtos.requests.AuthenticationRequestDto;
+import com.votify.dtos.requests.ResetPasswordRequestDto;
+import com.votify.dtos.requests.UserEmailRequestDto;
 import com.votify.facades.AuthFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -57,7 +57,7 @@ public class AuthController {
             )
     })
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@RequestBody @Valid AuthenticationRequestDTO authenticationRequestDTO) {
+    public ResponseEntity<Void> login(@RequestBody @Valid AuthenticationRequestDto authenticationRequestDTO) {
         String token = this.authFacade.login(authenticationRequestDTO);
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + token)
@@ -71,7 +71,7 @@ public class AuthController {
             }))
     })
     @PostMapping("/forgot-password")
-    public ResponseEntity<Void> forgotPassword(@RequestBody @Valid UserEmailRequestDTO userEmailRequestDTO) {
+    public ResponseEntity<Void> forgotPassword(@RequestBody @Valid UserEmailRequestDto userEmailRequestDTO) {
         this.authFacade.forgotPassword(userEmailRequestDTO.email());
         return ResponseEntity.ok().build();
     }
@@ -90,7 +90,7 @@ public class AuthController {
                             examples = @ExampleObject(value = "{\"message\": \"User not found\"}"))),
     })
     @PostMapping("/reset-password")
-    public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordRequestDTO resetPasswordRequestDto) {
+    public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordRequestDto resetPasswordRequestDto) {
         this.authFacade.resetPassword(resetPasswordRequestDto);
         return ResponseEntity.ok().build();
     }

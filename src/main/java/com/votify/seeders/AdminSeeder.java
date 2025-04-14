@@ -1,7 +1,7 @@
 package com.votify.seeders;
 
 import com.votify.config.AdminProperties;
-import com.votify.dtos.requests.UserRequestDTO;
+import com.votify.dtos.requests.UserRequestDto;
 import com.votify.services.UserService;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -25,7 +25,7 @@ public class AdminSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        UserRequestDTO adminDto = new UserRequestDTO(
+        UserRequestDto adminDto = new UserRequestDto(
             "Admin",
             "Votify",
             adminProperties.getEmail(),
