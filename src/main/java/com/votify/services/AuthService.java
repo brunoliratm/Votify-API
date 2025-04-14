@@ -70,10 +70,7 @@ public class AuthService implements UserDetailsService {
 
         UserModel user = userService.getUserByEmail(email);
 
-        if (user.isDeleted())
-            user = null;
-
-        if (user != null) {
+        if (user != null && user.isDeleted()) {
             String resetCode = RandomCodeGenService.generateRandomCode(6);
             user.setResetPasswordCode(resetCode);
             user.setResetPasswordExpirationCode(LocalDateTime.now().plusMinutes(5));
