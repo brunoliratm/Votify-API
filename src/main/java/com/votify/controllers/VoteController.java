@@ -26,8 +26,10 @@ public class VoteController {
             @ApiResponse(responseCode = "400", description = "Invalid data",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(value = "{\"message\": \"Validation error\", \"errors\": [\"Vote option cannot be null\"]}")
-                    )
+                            examples = {
+                                    @ExampleObject(name = "Vote cannot be null", value = "{\"message\": \"Validation error\", \"errors\": [\"Vote option cannot be null\"]}"),
+                                    @ExampleObject(name = "Voting unavailable", value = "{\"message\": \"Voting is not allowed for this agenda at this time.\"}")
+                            })
             ),
             @ApiResponse(responseCode = "401", description = "Unauthorized access",
                     content = @Content(mediaType = "application/json",

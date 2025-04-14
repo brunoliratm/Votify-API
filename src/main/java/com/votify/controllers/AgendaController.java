@@ -177,6 +177,10 @@ public class AgendaController {
 
     @Operation(summary = "Start voting for an agenda", description = "Start the voting process for a specific agenda", responses = {
         @ApiResponse(responseCode = "204", description = "Voting started successfully"),
+        @ApiResponse(responseCode = "400", description = "Closed agenda",
+                content = @Content(mediaType = "application/json",
+                    examples = @ExampleObject(value = "{\"message\": \"Voting is closed for this agenda.\"}")
+                )),
         @ApiResponse(responseCode = "401", description = "Unauthorized access",
                 content = @Content(mediaType = "application/json",
                         examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
