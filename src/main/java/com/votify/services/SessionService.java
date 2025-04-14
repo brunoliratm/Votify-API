@@ -9,8 +9,6 @@ import com.votify.dtos.responses.SessionResponseDto;
 import com.votify.dtos.responses.SessionUserDto;
 import com.votify.enums.SortSession;
 import com.votify.exceptions.*;
-import com.votify.facades.AgendaFacade;
-import com.votify.facades.UserFacade;
 import com.votify.helpers.UtilHelper;
 import com.votify.interfaces.SessionDateInterval;
 import com.votify.models.AgendaModel;
@@ -34,20 +32,20 @@ import java.util.stream.Collectors;
 @Service
 public class SessionService {
     private final SessionRepository sessionRepository;
-    private final UserFacade userFacade;
+    private final UserService userService;
     private final UtilHelper utilHelper;
-    private final AgendaFacade agendaFacade;
+    private final AgendaService agendaService;
 
     public SessionService(
         SessionRepository sessionRepository,
         UtilHelper utilHelper,
-        AgendaFacade agendaFacade,
-        UserFacade userFacade
+        AgendaService agendaService,
+        UserService userService
     ) {
         this.sessionRepository = sessionRepository;
         this.utilHelper = utilHelper;
-        this.agendaFacade = agendaFacade;
-        this.userFacade = userFacade;
+        this.agendaService = agendaService;
+        this.userService = userService;
     }
 
     @Transactional
@@ -58,7 +56,7 @@ public class SessionService {
             ? sessionRequestDto.startDate()
             : LocalDateTime.now();
 
-        UserModel organizer = userFacade.findOrganizer(sessionRequestDto.organizerId());
+        UserModel organizer = userService.findOrganizer(sessionRequestDto.organizerId());
 
         SessionModel session = new SessionModel();
         session.setTitle(sessionRequestDto.title());
@@ -158,7 +156,7 @@ public class SessionService {
 
         List<AgendaResponseDto> agendas = new ArrayList<>();
         for (AgendaModel agenda : sessionModel.getAgendas()) {
-            agendas.add(this.agendaFacade.convertAgendaToDto(agenda));
+            agendas.add(this.agendaService.convertAgendaToDto(agenda));
         }
 
         return new SessionResponseDto(

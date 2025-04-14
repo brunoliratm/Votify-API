@@ -5,7 +5,6 @@ import com.votify.dtos.requests.UserRequestDto;
 import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.dtos.responses.UserResponseDTO;
 import com.votify.enums.UserRole;
-import com.votify.models.UserModel;
 import com.votify.services.UserService;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
@@ -38,7 +37,4 @@ public class UserFacade {
         this.userService.deleteUser(id);
     }
     
-    public UserModel findOrganizer(Long organizerId) {
-        return this.userService.findOrganizer(organizerId);
-    }
 }

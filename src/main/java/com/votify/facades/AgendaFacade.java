@@ -6,7 +6,6 @@ import com.votify.dtos.responses.AgendaResponseDto;
 import com.votify.dtos.responses.AgendaUniqueResponseDto;
 import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.enums.SortAgenda;
-import com.votify.models.AgendaModel;
 import com.votify.services.AgendaService;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
@@ -44,15 +43,4 @@ public class AgendaFacade {
         this.agendaService.startVoting(id, durationSeconds);
     }
     
-    public AgendaModel getAgendaById(Long id) {
-        return this.agendaService.getAgendaById(id);
-    }
-    
-    public boolean validateVotingAvailability(AgendaModel agenda) {
-        return this.agendaService.validateVotingAvailability(agenda);
-    }
-    
-    public AgendaResponseDto convertAgendaToDto(AgendaModel agendaModel) {
-        return this.agendaService.convertAgendaToDto(agendaModel);
-    }
 }
