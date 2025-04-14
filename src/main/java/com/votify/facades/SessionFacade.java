@@ -5,7 +5,6 @@ import com.votify.dtos.requests.SessionRequestPutDto;
 import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.dtos.responses.SessionResponseDto;
 import com.votify.enums.SortSession;
-import com.votify.models.SessionModel;
 import com.votify.services.SessionService;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
@@ -39,7 +38,4 @@ public class SessionFacade {
         this.sessionService.delete(id);
     }
 
-    public SessionModel getSessionById(Long id) {
-        return this.sessionService.getSessionById(id);
-    }
 }
