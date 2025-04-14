@@ -3,6 +3,7 @@ package com.votify.services;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import com.votify.dtos.responses.UserResponseDTO;
 import jakarta.transaction.Transactional;
 import com.votify.exceptions.ConflictException;
@@ -67,10 +68,10 @@ public class UserService {
         Pageable pageable = PageRequest.of(pageIndex, 10);
 
         Page<UserModel> userPage = userRepository
-                .findByFilters((name != null && !name.isEmpty()) ? name : null, role, pageable);
+            .findByFilters((name != null && !name.isEmpty()) ? name : null, role, pageable);
 
         List<UserResponseDTO> userResponseDtos =
-                userPage.getContent().stream().map(this::convertToDTO).collect(Collectors.toList());
+            userPage.getContent().stream().map(this::convertToDTO).collect(Collectors.toList());
 
         InfoDto info = utilHelper.buildPageableInfoDto(userPage, "users");
 
@@ -89,12 +90,12 @@ public class UserService {
 
     private UserResponseDTO convertToDTO(UserModel userModel) {
         return new UserResponseDTO(userModel.getId(), userModel.getName(), userModel.getSurname(),
-                userModel.getEmail(),
-                userModel.getRole() != null ? userModel.getRole().toString() : null);
+            userModel.getEmail(),
+            userModel.getRole() != null ? userModel.getRole().toString() : null);
     }
 
     private void validateFieldsWithCheckEmail(UserRequestDto userRequestDto,
-            BindingResult bindingResult) {
+                                              BindingResult bindingResult) {
         Optional<UserModel> checkEmailExists = userRepository.findByEmail(userRequestDto.email());
 
         if (checkEmailExists.isPresent())
@@ -102,13 +103,13 @@ public class UserService {
 
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getFieldErrors().stream()
-                    .map(FieldError::getDefaultMessage).collect(Collectors.toList());
+                .map(FieldError::getDefaultMessage).collect(Collectors.toList());
             throw new ValidationErrorException(errors);
         }
     }
 
     private void validateUpdateUser(Long id, UserPutRequestDto userRequestDto,
-            BindingResult bindingResult) {
+                                    BindingResult bindingResult) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
         if (user.isDeleted()) {
@@ -117,14 +118,14 @@ public class UserService {
 
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getFieldErrors().stream()
-                    .map(FieldError::getDefaultMessage).collect(Collectors.toList());
+                .map(FieldError::getDefaultMessage).collect(Collectors.toList());
             throw new ValidationErrorException(errors);
         }
 
         if (userRequestDto.email() != null && !userRequestDto.email().isEmpty()
-                && !userRequestDto.email().equals(user.getEmail())) {
+            && !userRequestDto.email().equals(user.getEmail())) {
             Optional<UserModel> existingUserWithEmail =
-                    userRepository.findByEmail(userRequestDto.email());
+                userRepository.findByEmail(userRequestDto.email());
             if (existingUserWithEmail.isPresent()) {
                 throw new ConflictException("Email already exists");
             }
@@ -145,10 +146,10 @@ public class UserService {
 
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
-        if (userPutRequestDto.email() != null 
-                && !userPutRequestDto.email().isEmpty()
-                && !userPutRequestDto.email().equals(user.getEmail())) {
-                user.setEmail(userPutRequestDto.email());
+        if (userPutRequestDto.email() != null
+            && !userPutRequestDto.email().isEmpty()
+            && !userPutRequestDto.email().equals(user.getEmail())) {
+            user.setEmail(userPutRequestDto.email());
         }
 
         if (userPutRequestDto.name() != null && !userPutRequestDto.name().isEmpty()) {
@@ -182,10 +183,14 @@ public class UserService {
     }
 
     public UserModel findOrganizer(Long id) {
-        UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        if (!user.getAuthorities().contains(new SimpleGrantedAuthority("ORGANIZER")))
-            throw new UserNotFoundException();
-        return user;
+        Optional<UserModel> user = userRepository.findById(id);
+        if (user.isEmpty() ||
+            !user.get().getAuthorities().contains(new SimpleGrantedAuthority("ORGANIZER"))
+            || user.get().getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))
+            || user.get().isDeleted()) {
+            throw new UserNotFoundException("Organizer not found");
+        }
+        return user.get();
     }
 
     @Transactional
