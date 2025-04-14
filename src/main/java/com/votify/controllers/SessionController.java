@@ -42,6 +42,10 @@ public class SessionController {
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(name = "AccessDenied", value = "{\"message\": \"You do not have permission to access this resource\"}")
                     )),
+            @ApiResponse(responseCode = "404", description = "Organizer not found",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(name = "User Not Found", value = "{\"message\": \"Organizer not found\"}")
+                    )),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(
                             mediaType = "application/json",
