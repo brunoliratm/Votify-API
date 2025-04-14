@@ -7,7 +7,6 @@ import com.votify.exceptions.VotingException;
 import com.votify.models.AgendaModel;
 import com.votify.models.UserModel;
 import com.votify.models.VoteModel;
-import com.votify.repositories.AgendaRepository;
 import com.votify.repositories.VoteRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,7 +21,7 @@ public class VoteService {
     private final VoteRepository voteRepository;
     private final AgendaService agendaService;
 
-    public VoteService(VoteRepository voteRepository, AgendaService agendaService, AgendaRepository agendaRepository) {
+    public VoteService(VoteRepository voteRepository, AgendaService agendaService) {
         this.voteRepository = voteRepository;
         this.agendaService = agendaService;
     }

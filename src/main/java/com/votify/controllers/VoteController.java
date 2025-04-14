@@ -1,7 +1,7 @@
 package com.votify.controllers;
 
 import com.votify.dtos.requests.VoteRequestDto;
-import com.votify.services.VoteService;
+import com.votify.facades.VoteFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -12,13 +12,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/${api.version}/votes")
+@RequestMapping("api/${api.version}/votes")
 public class VoteController {
 
-    private final VoteService voteService;
+    private final VoteFacade voteFacade;
 
-    public VoteController(VoteService voteService) {
-        this.voteService = voteService;
+    public VoteController(VoteFacade voteFacade) {
+        this.voteFacade = voteFacade;
     }
 
     @Operation(summary = "Register a vote", description = "Allows the currently logged-in associate to vote on an agenda.", responses = {
@@ -26,8 +26,10 @@ public class VoteController {
             @ApiResponse(responseCode = "400", description = "Invalid data",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(value = "{\"message\": \"Validation error\", \"errors\": [\"Vote option cannot be null\"]}")
-                    )
+                            examples = {
+                                    @ExampleObject(name = "Vote cannot be null", value = "{\"message\": \"Validation error\", \"errors\": [\"Vote option cannot be null\"]}"),
+                                    @ExampleObject(name = "Voting unavailable", value = "{\"message\": \"Voting is not allowed for this agenda at this time.\"}")
+                            })
             ),
             @ApiResponse(responseCode = "401", description = "Unauthorized access",
                     content = @Content(mediaType = "application/json",
@@ -52,7 +54,7 @@ public class VoteController {
     })
     @PostMapping
     public ResponseEntity<Void> registerVote(@RequestBody @Valid VoteRequestDto voteRequestDto) {
-        this.voteService.registerVote(voteRequestDto);
+        this.voteFacade.registerVote(voteRequestDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

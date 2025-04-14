@@ -6,7 +6,7 @@ import com.votify.dtos.responses.AgendaResponseDto;
 import com.votify.dtos.responses.AgendaUniqueResponseDto;
 import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.enums.SortAgenda;
-import com.votify.services.AgendaService;
+import com.votify.facades.AgendaFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -19,12 +19,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/${api.version}/agendas")
+@RequestMapping("api/${api.version}/agendas")
 public class AgendaController {
-    private final AgendaService agendaService;
+    private final AgendaFacade agendaFacade;
 
-    public AgendaController(AgendaService agendaService) {
-        this.agendaService = agendaService;
+    public AgendaController(AgendaFacade agendaFacade) {
+        this.agendaFacade = agendaFacade;
     }
 
     @Operation(summary = "Create a new agenda", description = "Create a new agenda", responses = {
@@ -55,7 +55,7 @@ public class AgendaController {
             @RequestBody @Valid AgendaRequestDto agendaRequestDto,
            BindingResult bindingResult
     ) {
-        this.agendaService.save(agendaRequestDto, bindingResult);
+        this.agendaFacade.create(agendaRequestDto, bindingResult);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -78,7 +78,7 @@ public class AgendaController {
             @RequestParam(required = false, defaultValue = "id") SortAgenda sort,
             @RequestParam(required = false, defaultValue = "ASC") Sort.Direction direction
     ) {
-        ApiResponseDto<AgendaResponseDto> response = this.agendaService.findAll(page, sort, direction);
+        ApiResponseDto<AgendaResponseDto> response = this.agendaFacade.getAll(page, sort, direction);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -103,7 +103,7 @@ public class AgendaController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<AgendaUniqueResponseDto> getById(@PathVariable Long id) {
-        AgendaUniqueResponseDto response = this.agendaService.findById(id);
+        AgendaUniqueResponseDto response = this.agendaFacade.getById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -142,7 +142,7 @@ public class AgendaController {
             @RequestBody @Valid AgendaRequestPutDto agendaRequestPutDto,
             BindingResult bindingResult
     ) {
-        this.agendaService.update(id, agendaRequestPutDto, bindingResult);
+        this.agendaFacade.update(id, agendaRequestPutDto, bindingResult);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -171,12 +171,16 @@ public class AgendaController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        this.agendaService.delete(id);
+        this.agendaFacade.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Operation(summary = "Start voting for an agenda", description = "Start the voting process for a specific agenda", responses = {
         @ApiResponse(responseCode = "204", description = "Voting started successfully"),
+        @ApiResponse(responseCode = "400", description = "Closed agenda",
+                content = @Content(mediaType = "application/json",
+                    examples = @ExampleObject(value = "{\"message\": \"Voting is closed for this agenda.\"}")
+                )),
         @ApiResponse(responseCode = "401", description = "Unauthorized access",
                 content = @Content(mediaType = "application/json",
                         examples = @ExampleObject(name = "UnauthorizedAccess", value = "{\"message\": \"Unauthorized access. Authentication required.\"}")
@@ -201,7 +205,7 @@ public class AgendaController {
     @PostMapping("/{id}/start-voting")
     public ResponseEntity<Void> startVoting(@PathVariable Long id, 
             @RequestParam(required = false) Integer durationSeconds) {
-        this.agendaService.startVoting(id, durationSeconds);
+        this.agendaFacade.startVoting(id, durationSeconds);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

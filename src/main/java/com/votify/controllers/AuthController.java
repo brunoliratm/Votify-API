@@ -3,7 +3,7 @@ package com.votify.controllers;
 import com.votify.dtos.requests.AuthenticationRequestDTO;
 import com.votify.dtos.requests.ResetPasswordRequestDTO;
 import com.votify.dtos.requests.UserEmailRequestDTO;
-import com.votify.services.AuthService;
+import com.votify.facades.AuthFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/v1/auth")
+@RequestMapping("api/${api.version}/auth")
 public class AuthController {
-    private final AuthService authService;
+    private final AuthFacade authFacade;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
+    public AuthController(AuthFacade authFacade) {
+        this.authFacade = authFacade;
     }
 
     @Operation(summary = "User login", description = "User can login")
@@ -58,7 +58,7 @@ public class AuthController {
     })
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody @Valid AuthenticationRequestDTO authenticationRequestDTO) {
-        String token = authService.login(authenticationRequestDTO);
+        String token = this.authFacade.login(authenticationRequestDTO);
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + token)
                 .build();
@@ -72,9 +72,8 @@ public class AuthController {
     })
     @PostMapping("/forgot-password")
     public ResponseEntity<Void> forgotPassword(@RequestBody @Valid UserEmailRequestDTO userEmailRequestDTO) {
-        authService.forgotPassword(userEmailRequestDTO.email());
-        return ResponseEntity.noContent().build();
-
+        this.authFacade.forgotPassword(userEmailRequestDTO.email());
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Reset password", description = "Reset the user's password", responses = {
@@ -92,12 +91,7 @@ public class AuthController {
     })
     @PostMapping("/reset-password")
     public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordRequestDTO resetPasswordRequestDto) {
-        authService.resetPassword(
-                resetPasswordRequestDto.email(),
-                resetPasswordRequestDto.code(),
-                resetPasswordRequestDto.password(),
-                resetPasswordRequestDto.confirmPassword()
-        );
+        this.authFacade.resetPassword(resetPasswordRequestDto);
         return ResponseEntity.ok().build();
     }
 }

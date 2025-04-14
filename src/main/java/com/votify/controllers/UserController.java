@@ -3,14 +3,13 @@ package com.votify.controllers;
 import com.votify.dtos.requests.UserRequestDTO;
 import com.votify.dtos.responses.UserResponseDTO;
 import com.votify.enums.UserRole;
-import com.votify.services.UserService;
+import com.votify.facades.UserFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -26,12 +25,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.votify.dtos.responses.ApiResponseDto;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("api/${api.version}/users")
 @Tag(name = "Users", description = "Endpoints for user management")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private UserFacade userFacade;
+
+    public UserController(UserFacade userFacade) {
+        this.userFacade = userFacade;
+    }
 
     @Operation(summary = "Create a new user", description = "Create a new user",
             responses = {
@@ -73,7 +75,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<Void> createUser(@RequestBody @Valid UserRequestDTO userRequestDto,
                                            BindingResult bindingResult) {
-        userService.createUser(userRequestDto, bindingResult);
+        userFacade.create(userRequestDto, bindingResult);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -120,7 +122,7 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateUser(@PathVariable Long id,
                                            @RequestBody @Valid UserRequestDTO userRequestDto, BindingResult bindingResult) {
-        userService.updateUser(id, userRequestDto, bindingResult);
+        userFacade.update(id, userRequestDto, bindingResult);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -144,7 +146,7 @@ public class UserController {
             })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+        userFacade.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -190,7 +192,7 @@ public class UserController {
             @RequestParam(required = false, defaultValue = "1") int page,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) UserRole role) {
-        ApiResponseDto<UserResponseDTO> response = userService.getAllUsers(page, name, role);
+        ApiResponseDto<UserResponseDTO> response = userFacade.getAll(page, name, role);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -223,7 +225,7 @@ public class UserController {
             })
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
-        UserResponseDTO user = userService.getUserById(id);
+        UserResponseDTO user = userFacade.getById(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }
