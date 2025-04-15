@@ -1,4 +1,11 @@
-# Votify-Api
+<div align="center" text-align="center">
+    <img src="https://capsule-render.vercel.app/api?type=waving&height=200&color=gradient&text=Votify%20API&reversal=false">
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/Exploit-Experts/Votify-API)
+![GitHub contributors](https://img.shields.io/github/contributors/Exploit-Experts/Votify-API)
+
+</div>
 
 ## 📋 Overview
 Votify-Api is a REST API developed with Spring Boot for managing voting systems in cooperatives. The platform allows creating voting sessions, managing agendas, and controlling the voting process by associates.
