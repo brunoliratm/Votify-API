@@ -1,33 +1,43 @@
 # Votify-Api
 
 ## 📋 Overview
-Votify-Api is a comprehensive REST API for managing voting systems and polls. This Spring Boot application allows users to create, manage, and participate in various types of voting events.
+Votify-Api is a REST API developed with Spring Boot for managing voting systems in cooperatives. The platform allows creating voting sessions, managing agendas, and controlling the voting process by associates.
 
 ## ✨ Features
-- User authentication and authorization
-- Create and manage voting sessions and agendas
-- Real-time vote tracking
-- Secure vote submission
-- Results analytics and visualization
-- Support for multiple vote options (Yes/No)
+- Authentication and authorization with different access levels (ADMIN, ORGANIZER, ASSOCIATE)
+- Creation and management of voting sessions with defined time periods
+- Management of agendas within sessions
+- Secure voting system (Yes/No) with user validation
+- Logical deletion (soft delete) for historical data preservation
+- Robust exception handling and comprehensive validations
+- Integrated API documentation via Swagger/OpenAPI
 
 ## 🚀 Installation
 
 ### Prerequisites
 - Java 21
 - PostgreSQL
-- Maven
+- Maven 3.9+
 
 ### Setup
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/Votify-Api.git
+git clone https://github.com/Exploit-Experts/Votify-Api.git
 cd Votify-Api
 ```
 
-2. Configure the database
-- Update the database configuration in src/main/resources/application.properties
-
+2. Configure environment variables
+```
+POSTGRES_URL=localhost:5432/votify
+POSTGRES_USER=your_username
+POSTGRES_PASSWORD=your_password
+JWT_SECRET=your_jwt_secret_key
+MAIL_USERNAME=your_email@gmail.com
+MAIL_PASSWORD=your_email_password
+API_BASEURL=http://localhost:8080/api/v1
+ADMIN_DEFAULT_EMAIL=admin@votify.com
+ADMIN_DEFAULT_PASSWORD=admin123@
+```
 
 3. Build the project
 ```bash
@@ -43,71 +53,89 @@ java -jar target/votify-0.0.1-SNAPSHOT.jar
 
 ## 🔌 API Endpoints
 
+### Authentication
+- `POST /api/v1/auth/login` - User authentication
+- `POST /api/v1/auth/forgot-password` - Request password reset
+- `POST /api/v1/auth/reset-password` - Reset password with received code
+
 ### Users
 - `POST /api/v1/users` - Create a new user
-- `GET /api/v1/users` - Get all users
+- `GET /api/v1/users` - List users
   - Query Parameters:
-    - `page` (optional, default: 1) - Page number for pagination
-      - Example: `/api/v1/users?page=2`
-    - `name` (optional) - Filter users by name
-      - Example: `/api/v1/users?name=John`
-    - `role` (optional) - Filter users by role
-      - Example: `/api/v1/users?role=ADMIN`
-    - Combined example: `/api/v1/users?page=2&name=John&role=ASSOCIATE`
-- `GET /api/v1/users/{id}` - Get user by ID
+    - `page` (optional, default: 1) - Page number
+    - `name` (optional) - Filter by name
+    - `role` (optional) - Filter by role (ADMIN, ORGANIZER, ASSOCIATE)
+- `GET /api/v1/users/{id}` - Find user by ID
 - `PUT /api/v1/users/{id}` - Update user
-- `DELETE /api/v1/users/{id}` - Delete user
+- `DELETE /api/v1/users/{id}` - Delete user (soft delete)
 
 ### Sessions
-- `POST /api/v1/sessions` - Create a new voting session
-- `GET /api/v1/sessions` - Get all sessions
-- `GET /api/v1/sessions/{id}` - Get session by ID
+- `POST /api/v1/sessions` - Create a new session
+- `GET /api/v1/sessions` - List all sessions
+  - Query Parameters:
+    - `page` (optional, default: 1) - Page number
+    - `sort` (optional, default: id) - Field to sort
+    - `direction` (optional, default: ASC) - Sort direction (ASC, DESC)
+- `GET /api/v1/sessions/{id}` - Find session by ID
 - `PUT /api/v1/sessions/{id}` - Update session
-- `DELETE /api/v1/sessions/{id}` - Delete session
+- `DELETE /api/v1/sessions/{id}` - Delete session (soft delete)
 
 ### Agendas
 - `POST /api/v1/agendas` - Create a new agenda
-- `GET /api/v1/agendas` - Get all agendas
-- `GET /api/v1/agendas/{id}` - Get agenda by ID
+- `GET /api/v1/agendas` - List all agendas
+  - Query Parameters:
+    - `page` (optional, default: 1) - Page number
+    - `sort` (optional, default: id) - Field to sort
+    - `direction` (optional, default: ASC) - Sort direction (ASC, DESC)
+- `GET /api/v1/agendas/{id}` - Find agenda by ID
 - `PUT /api/v1/agendas/{id}` - Update agenda
-- `DELETE /api/v1/agendas/{id}` - Delete agenda
+- `DELETE /api/v1/agendas/{id}` - Delete agenda (soft delete)
+- `POST /api/v1/agendas/{id}/start-voting` - Start voting on an agenda
+  - Query Parameters:
+    - `durationSeconds` (optional) - Voting duration in seconds
 
 ### Votes
-- `POST /api/v1/votes` - Submit a vote
-- `GET /api/v1/votes/agenda/{agendaId}` - Get votes for a specific agenda
-- `GET /api/v1/votes/stats/{agendaId}` - Get voting statistics
-
-### Authentication
-- `POST /api/v1/auth/login` - Login user
-- `POST /api/v1/auth/forgot-password` - User forgot password
-- `POST /api/v1/auth/reset-password` - User changes password
+- `POST /api/v1/votes` - Register a vote (only for associates)
 
 ## 🛠️ Technologies
 - Java 21
-- Spring Boot 3.4
+- Spring Boot 3.3.5
+- Spring Security with JWT
 - Spring Data JPA
+- Spring Mail for email sending
+- Hibernate/JPA
 - PostgreSQL
 - Lombok
+- BCrypt for password encryption
 - Swagger/OpenAPI for documentation
 - Maven
 
+## 🔒 Security
+- Authentication via JWT (JSON Web Tokens)
+- Role-based access control (ADMIN, ORGANIZER, ASSOCIATE)
+- Passwords encrypted with BCrypt
+- Protection against common attacks
+- Data validation on all requests
+
 ## 📚 Documentation
-API documentation is available at `http://localhost:8080/swagger-ui/index.html` when the server is running.
+The API documentation is available at `http://localhost:8080/swagger-ui/index.html` when the application is running.
 
-## 🤝 Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
+## 📐 Architecture
+The application follows a layered architecture:
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes using conventional commit messages:
-    - `feat: Add some amazing feature` for new features
-    - `fix: Resolve a bug` for bug fixes
-    - `refactor: Improve code structure without changing functionality` for refactoring
-    - `docs: Update documentation` for documentation changes
-    - `test: Add or update tests` for test-related changes
-    - `chore: Update build tasks or dependencies` for maintenance tasks
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+- **Controllers**: Handling HTTP requests and responses
+- **Facades**: Intermediaries between controllers and services
+- **Services**: Business logic
+- **Repositories**: Data access
+- **Models**: Domain entities
+- **DTOs**: Data transfer objects
+
+It also implements several design patterns such as:
+- Facade
+- Repository
+- DTO
+- Service Layer
+- Soft Delete
 
 ## 📄 License
 This project is licensed under the MIT License - see the LICENSE file for details.
