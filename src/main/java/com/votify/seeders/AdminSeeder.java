@@ -1,7 +1,6 @@
 package com.votify.seeders;
 
 import com.votify.config.AdminProperties;
-import com.votify.dtos.requests.UserRequestDto;
 import com.votify.enums.UserRole;
 import com.votify.models.UserModel;
 import com.votify.repositories.UserRepository;
@@ -10,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
 
 import org.slf4j.Logger;
 

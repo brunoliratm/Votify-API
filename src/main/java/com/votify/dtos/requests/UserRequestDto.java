@@ -1,6 +1,5 @@
 package com.votify.dtos.requests;
 
-import com.votify.enums.UserRole;
 import com.votify.interfaces.UserRoleInterface;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
