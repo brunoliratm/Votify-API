@@ -202,7 +202,7 @@ public class AgendaController {
             )
         )
     })
-    @PatchMapping("/{id}/start-voting")
+    @PostMapping("/{id}/start-voting")
     public ResponseEntity<Void> startVoting(@PathVariable Long id, 
             @RequestParam(required = false) Integer durationSeconds) {
         this.agendaFacade.startVoting(id, durationSeconds);
