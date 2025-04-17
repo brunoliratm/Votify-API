@@ -10,6 +10,7 @@ import com.votify.dtos.responses.SessionUserDto;
 import com.votify.enums.SortSession;
 import com.votify.exceptions.*;
 import com.votify.helpers.UtilHelper;
+import com.votify.interfaces.ISessionService;
 import com.votify.interfaces.SessionDateInterval;
 import com.votify.models.AgendaModel;
 import com.votify.models.SessionModel;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class SessionService {
+public class SessionService implements ISessionService {
     private final SessionRepository sessionRepository;
     private final UserService userService;
     private final UtilHelper utilHelper;
@@ -49,6 +50,7 @@ public class SessionService {
     }
 
     @Transactional
+    @Override
     public void save(SessionRequestDto sessionRequestDto, BindingResult bindingResult) {
         validateErrorFields(sessionRequestDto, bindingResult);
 
@@ -69,6 +71,7 @@ public class SessionService {
         sessionRepository.save(session);
     }
 
+    @Override
     public ApiResponseDto<SessionResponseDto> findAll(int page, SortSession sort, Sort.Direction sortDirection) {
         int pageIndex = (page > 0) ? (page - 1) : 0;
 
@@ -85,16 +88,19 @@ public class SessionService {
         return new ApiResponseDto<>(infoDto, responsePage.getContent());
     }
 
+    @Override
     public SessionModel getSessionById(Long id) {
         return sessionRepository.findByIdActive(id)
             .orElseThrow(SessionNotFoundException::new);
     }
 
+    @Override
     public SessionResponseDto findById(Long id) {
         SessionModel session = getSessionById(id);
         return convertSessionToDto(session);
     }
 
+    @Override
     @Transactional
     public SessionResponseDto update(Long id, SessionRequestPutDto sessionRequestDto, BindingResult bindingResult) {
         validateErrorFields(sessionRequestDto, bindingResult);
@@ -125,6 +131,7 @@ public class SessionService {
         return convertSessionToDto(session);
     }
 
+    @Override
     @Transactional
     public void delete(Long id) {
         SessionModel session = getSessionById(id);

@@ -4,6 +4,7 @@ import com.votify.dtos.requests.VoteRequestDto;
 import com.votify.enums.UserRole;
 import com.votify.enums.VoteOption;
 import com.votify.exceptions.VotingException;
+import com.votify.interfaces.IVoteService;
 import com.votify.models.AgendaModel;
 import com.votify.models.UserModel;
 import com.votify.models.VoteModel;
@@ -16,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
-public class VoteService {
+public class VoteService implements IVoteService {
 
     private final VoteRepository voteRepository;
     private final AgendaService agendaService;
@@ -26,6 +27,7 @@ public class VoteService {
         this.agendaService = agendaService;
     }
 
+    @Override
     @Transactional
     public void registerVote(VoteRequestDto voteRequestDto) {
         Long agendaId = voteRequestDto.agendaId();

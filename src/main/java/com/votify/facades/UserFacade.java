@@ -5,15 +5,15 @@ import com.votify.dtos.requests.UserRequestDto;
 import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.dtos.responses.UserResponseDTO;
 import com.votify.enums.UserRole;
-import com.votify.services.UserService;
+import com.votify.interfaces.IUserService;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 
 @Component
 public class UserFacade {
-    private final UserService userService;
+    private final IUserService userService;
 
-    public UserFacade(UserService userService) {
+    public UserFacade(IUserService userService) {
         this.userService = userService;
     }
 

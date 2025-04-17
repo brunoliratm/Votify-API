@@ -2,14 +2,14 @@ package com.votify.facades;
 
 import com.votify.dtos.requests.AuthenticationRequestDto;
 import com.votify.dtos.requests.ResetPasswordRequestDto;
-import com.votify.services.AuthService;
+import com.votify.interfaces.IAuthService;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AuthFacade {
-    private final AuthService authService;
+    private final IAuthService authService;
 
-    public AuthFacade(AuthService authService) {
+    public AuthFacade(IAuthService authService) {
         this.authService = authService;
     }
 

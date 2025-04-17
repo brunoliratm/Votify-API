@@ -5,16 +5,16 @@ import com.votify.dtos.requests.SessionRequestPutDto;
 import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.dtos.responses.SessionResponseDto;
 import com.votify.enums.SortSession;
-import com.votify.services.SessionService;
+import com.votify.interfaces.ISessionService;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 
 @Component
 public class SessionFacade {
-    private final SessionService sessionService;
+    private final ISessionService sessionService;
 
-    public SessionFacade(SessionService sessionService) {
+    public SessionFacade(ISessionService sessionService) {
         this.sessionService = sessionService;
     }
 
