@@ -17,6 +17,7 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
             SELECT u FROM UserModel u
             WHERE (:name IS NULL OR LOWER(CAST(u.name AS string)) LIKE LOWER(CONCAT('%', CAST(:name AS string), '%')))
             AND (:role IS NULL OR u.role = :role)
+            AND u.deletedAt IS NULL
         """)
     Page<UserModel> findByFilters(@Param("name") String name, @Param("role") UserRole role, Pageable pageable);
 }

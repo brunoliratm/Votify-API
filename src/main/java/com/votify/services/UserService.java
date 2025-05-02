@@ -3,9 +3,9 @@ package com.votify.services;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import com.votify.dtos.responses.UserResponseDTO;
 import com.votify.exceptions.InvalidCredentialsException;
+import com.votify.interfaces.IUserService;
 import com.votify.interfaces.UserRoleInterface;
 import jakarta.transaction.Transactional;
 import com.votify.exceptions.ConflictException;
@@ -31,7 +31,7 @@ import com.votify.dtos.InfoDto;
 import com.votify.helpers.UtilHelper;
 
 @Service
-public class UserService {
+public class UserService implements IUserService {
 
     private final UserRepository userRepository;
     private final UtilHelper utilHelper;
@@ -44,6 +44,7 @@ public class UserService {
     }
 
     @Transactional
+    @Override
     public void createUser(UserRequestDto userRequestDto, BindingResult bindingResult) {
         validateFieldsWithCheckEmail(userRequestDto, bindingResult);
 
@@ -69,6 +70,7 @@ public class UserService {
         userRepository.save(userModel);
     }
 
+    @Override
     public ApiResponseDto<UserResponseDTO> getAllUsers(int page, String name, UserRole role) {
         int pageIndex = (page > 0) ? (page - 1) : 0;
         Pageable pageable = PageRequest.of(pageIndex, 10);
@@ -84,6 +86,7 @@ public class UserService {
         return new ApiResponseDto<>(info, userResponseDtos);
     }
 
+    @Override
     public UserResponseDTO getUserById(Long id) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
@@ -149,6 +152,7 @@ public class UserService {
     }
 
     @Transactional
+    @Override
     public void updateUser(Long id, UserPutRequestDto userPutRequestDto, BindingResult bindingResult) {
         validateUpdateUser(id, userPutRequestDto, bindingResult);
 
@@ -180,6 +184,7 @@ public class UserService {
     }
 
     @Transactional
+    @Override
     public void deleteUser(Long id) {
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
@@ -198,10 +203,12 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Override
     public UserModel loadUserByLogin(String login) throws UserNotFoundException {
         return userRepository.findByEmail(login).orElseThrow(UserNotFoundException::new);
     }
 
+    @Override
     public UserModel findOrganizer(Long id) {
         Optional<UserModel> user = userRepository.findById(id);
         if (user.isEmpty() ||
@@ -213,11 +220,13 @@ public class UserService {
         return user.get();
     }
 
+    @Override
     @Transactional
     public void updateUser(UserModel user) {
         userRepository.save(user);
     }
 
+    @Override
     public UserModel getUserByEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
             return null;

@@ -17,6 +17,7 @@ import com.votify.exceptions.SessionNotFoundException;
 import com.votify.exceptions.ValidationErrorException;
 import com.votify.exceptions.VotingException;
 import com.votify.helpers.UtilHelper;
+import com.votify.interfaces.IAgendaService;
 import com.votify.models.AgendaModel;
 import com.votify.models.SessionModel;
 import com.votify.repositories.AgendaRepository;
@@ -35,7 +36,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class AgendaService {
+public class AgendaService implements IAgendaService {
     private final AgendaRepository agendaRepository;
     private final UtilHelper utilHelper;
     private final SessionRepository sessionRepository;
@@ -52,6 +53,7 @@ public class AgendaService {
         this.voteRepository = voteRepository;
     }
 
+    @Override
     @Transactional
     public void save(AgendaRequestDto agendaRequestDto, BindingResult bindingResult) {
         validateErrorFields(bindingResult);
@@ -65,6 +67,7 @@ public class AgendaService {
         this.agendaRepository.save(agenda);
     }
 
+    @Override
     public ApiResponseDto<AgendaResponseDto> findAll(int page, SortAgenda sort, Sort.Direction sortDirection) {
         int pageIndex = (page > 0) ? (page - 1) : 0;
 

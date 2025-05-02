@@ -6,16 +6,16 @@ import com.votify.dtos.responses.AgendaResponseDto;
 import com.votify.dtos.responses.AgendaUniqueResponseDto;
 import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.enums.SortAgenda;
-import com.votify.services.AgendaService;
+import com.votify.interfaces.IAgendaService;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 
 @Component
 public class AgendaFacade {
-    private final AgendaService agendaService;
+    private final IAgendaService agendaService;
     
-    public AgendaFacade(AgendaService agendaService) {
+    public AgendaFacade(IAgendaService agendaService) {
         this.agendaService = agendaService;
     }
     

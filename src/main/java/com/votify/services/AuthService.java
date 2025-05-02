@@ -5,6 +5,7 @@ import com.votify.exceptions.InvalidCredentialsException;
 import com.votify.exceptions.InvalidResetCodeException;
 import com.votify.exceptions.UserDeletedException;
 import com.votify.exceptions.UserNotFoundException;
+import com.votify.interfaces.IAuthService;
 import com.votify.models.UserModel;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
-public class AuthService implements UserDetailsService {
+public class AuthService implements UserDetailsService, IAuthService {
 
     private final TokenService tokenService;
     private final UserService userService;
@@ -32,6 +33,7 @@ public class AuthService implements UserDetailsService {
         return userService.loadUserByLogin(username);
     }
 
+    @Override
     public String login(AuthenticationRequestDto loginDTO) {
         validateLogin(loginDTO);
         return tokenService.createToken(loginDTO);
@@ -61,6 +63,7 @@ public class AuthService implements UserDetailsService {
         }
     }
 
+    @Override
     public void forgotPassword(String email) {
         if (email == null || email.isEmpty())
             throw new InvalidCredentialsException("Email is mandatory");
@@ -78,6 +81,7 @@ public class AuthService implements UserDetailsService {
         }
     }
 
+    @Override
     public void resetPassword(String email, String code, String password, String confirmPassword) {
         if (!password.equals(confirmPassword)) {
             throw new InvalidCredentialsException("Passwords do not match");
