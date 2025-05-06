@@ -54,33 +54,33 @@ public class VoteService implements IVoteService {
   }
 
   @Override
-@Transactional
-public void updateVote(VoteRequestDto voteRequestDto) {
-  Long agendaId = voteRequestDto.agendaId();
-  VoteOption newVoteOption = voteRequestDto.voteOption();
-  Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-  UserModel currentUser = (UserModel) authentication.getPrincipal();
+  @Transactional
+  public void updateVote(VoteRequestDto voteRequestDto) {
+    Long agendaId = voteRequestDto.agendaId();
+    VoteOption newVoteOption = voteRequestDto.voteOption();
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    UserModel currentUser = (UserModel) authentication.getPrincipal();
 
-  AgendaModel agenda = this.agendaService.getAgendaById(agendaId);
+    AgendaModel agenda = this.agendaService.getAgendaById(agendaId);
 
-  if (!this.agendaService.validateVotingAvailability(agenda)) {
-    throw new VotingException("Voting is not allowed for this agenda at this time");
-  } else if (!currentUser.getRole().equals(UserRole.ASSOCIATE)) {
-    throw new VotingException("Only associates can update votes");
+    if (!this.agendaService.validateVotingAvailability(agenda)) {
+      throw new VotingException("Voting is not allowed for this agenda at this time");
+    } else if (!currentUser.getRole().equals(UserRole.ASSOCIATE)) {
+      throw new VotingException("Only associates can update votes");
+    }
+
+    if (!this.voteRepository.hasAssociateVoted(currentUser.getId(), agendaId)) {
+      throw new VotingException("You have not voted on this agenda yet");
+    }
+
+    VoteModel existingVote = this.voteRepository.findByAssociateIdAndAgendaId(currentUser.getId(), agendaId)
+        .orElseThrow(() -> new VotingException("Vote not found"));
+
+    if (!existingVote.getVoteType().equals(newVoteOption)) {
+      existingVote.setVoteType(newVoteOption);
+      existingVote.setVotedAt(LocalDateTime.now());
+      this.voteRepository.save(existingVote);
+    }
   }
-
-  if (!this.voteRepository.hasAssociateVoted(currentUser.getId(), agendaId)) {
-    throw new VotingException("You have not voted on this agenda yet");
-  }
-
-  VoteModel existingVote = this.voteRepository.findByAssociateIdAndAgendaId(currentUser.getId(), agendaId)
-      .orElseThrow(() -> new VotingException("Vote not found"));
-
-  if (!existingVote.getVoteType().equals(newVoteOption)) {
-    existingVote.setVoteType(newVoteOption);
-    existingVote.setVotedAt(LocalDateTime.now());
-    this.voteRepository.save(existingVote);
-  }
-}
 
 }
