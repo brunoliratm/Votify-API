@@ -1,5 +1,6 @@
 package com.votify.interfaces;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.validation.BindingResult;
 import com.votify.dtos.requests.AgendaRequestDto;
 import com.votify.dtos.requests.AgendaRequestPutDto;
@@ -7,7 +8,6 @@ import com.votify.dtos.responses.AgendaResponseDto;
 import com.votify.dtos.responses.AgendaUniqueResponseDto;
 import com.votify.dtos.responses.ApiResponseDto;
 import com.votify.enums.SortAgenda;
-import org.springframework.data.domain.Sort;
 
 
 public interface IAgendaService {
@@ -24,4 +24,5 @@ public interface IAgendaService {
 
     void startVoting(Long id, Integer durationSeconds);
 
+    void stopVoting(Long id);
 }
