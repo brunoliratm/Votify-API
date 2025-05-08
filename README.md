@@ -2,8 +2,8 @@
     <img src="https://capsule-render.vercel.app/api?type=waving&height=200&color=gradient&text=Votify%20API&reversal=false">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/Exploit-Experts/Votify-API)
-![GitHub contributors](https://img.shields.io/github/contributors/Exploit-Experts/Votify-API)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/brunoliratm/Votify-API)
+![GitHub contributors](https://img.shields.io/github/contributors/brunoliratm/Votify-API)
 
 </div>
 
@@ -286,8 +286,3 @@ It also implements several design patterns such as:
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 📞 Contact
-
-- Email - [exploitexpertsmail@gmail.com](mailto:exploitexpertsmail@gmail.com)
-- Project Link: [https://github.com/Exploit-Experts/Votify-Api](https://github.com/Exploit-Experts/Votify-Api)
