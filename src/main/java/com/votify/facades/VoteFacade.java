@@ -6,13 +6,17 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class VoteFacade {
-    private final IVoteService voteService;
+  private final IVoteService voteService;
 
-    public VoteFacade(IVoteService voteService) {
-        this.voteService = voteService;
-    }
+  public VoteFacade(IVoteService voteService) {
+    this.voteService = voteService;
+  }
 
-    public void registerVote(VoteRequestDto voteRequestDto) {
-        this.voteService.registerVote(voteRequestDto);
-    }
+  public void registerVote(VoteRequestDto voteRequestDto) {
+    this.voteService.registerVote(voteRequestDto);
+  }
+
+  public void updateVote(VoteRequestDto voteRequestDto) {
+    this.voteService.updateVote(voteRequestDto);
+  }
 }

@@ -1,7 +1,7 @@
 package com.votify.seeders;
 
-import com.votify.config.AdminProperties;
 import com.votify.enums.UserRole;
+import com.votify.infra.config.AdminProperties;
 import com.votify.models.UserModel;
 import com.votify.repositories.UserRepository;
 import com.votify.services.UserService;

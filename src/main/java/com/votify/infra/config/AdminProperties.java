@@ -1,4 +1,4 @@
-package com.votify.config;
+package com.votify.infra.config;
 
 import lombok.Getter;
 import lombok.Setter;

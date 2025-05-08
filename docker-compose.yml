@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: votify-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - POSTGRES_URL=jdbc:postgresql://db:5432/votify
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - JWT_SECRET=votify_jwt_secret_for_development_only
+      - ADMIN_DEFAULT_EMAIL=admin@votify.com
+      - ADMIN_DEFAULT_PASSWORD=admin123@
+      - API_BASEURL=http://localhost:8080/api/v1
+    networks:
+      - votify-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  db:
+    image: postgres:15-alpine
+    container_name: votify-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=votify
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - votify-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    name: votify-postgres-data
+
+networks:
+  votify-network:
+    name: votify-network
+    driver: bridge
