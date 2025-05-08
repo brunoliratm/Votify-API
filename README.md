@@ -11,6 +11,11 @@
 
 Votify-Api is a REST API developed with Spring Boot for managing voting systems in cooperatives. The platform allows creating voting sessions, managing agendas, and controlling the voting process by associates.
 
+## 👥 Credits
+
+| <a href="https://github.com/brunoliratm"><img src="https://avatars.githubusercontent.com/u/114788642?v=4" float="left" width="40px" height=40px><p>Bruno Magno</p></a> | <a href="https://github.com/Paulo-Araujo-Jr"><img src="https://avatars.githubusercontent.com/u/127964717?v=4" float="left" width="40px" height="40px"><p>Paulo Araujo</p></a> | <a href="https://github.com/MrMesquita"><img src="https://avatars.githubusercontent.com/u/126338859?v=4" float="left" width="40px" height=40px><p>Marcelo Mesquita</p></a> |
+| --- | --- | --- |
+
 ## ✨ Features
 
 - Authentication and authorization with different access levels (ADMIN, ORGANIZER, ASSOCIATE)
